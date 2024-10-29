@@ -11,6 +11,8 @@ class TileGrid(
 
     private val tiles: Array<Tile?> = arrayOfNulls(size)
 
+    val lastIndex: Int = tiles.lastIndex
+
     /**
      * Sets a slot tile at the given index.
      */
@@ -19,6 +21,16 @@ class TileGrid(
         tiles[index] = tile
 
         // TODO on tile change
+    }
+
+    /**
+     * Sets a slot tile from the given coordinates.
+     * @return the calculated index
+     */
+    operator fun set(x: Int, y: Int, tile: Tile): Int {
+        val index = toIndex(x, y, width)
+        set(index, tile)
+        return index
     }
 
     /**
@@ -47,8 +59,14 @@ class TileGrid(
      * @throws IllegalArgumentException if the index if out of bounds
      */
     private fun assertSlotIndex(index: Int) {
-        if (index > tiles.lastIndex) {
+        if (index > lastIndex) {
             throw IllegalArgumentException("Tile placed out of bounds: index $index, size $size")
+        }
+    }
+
+    companion object {
+        fun toIndex(x: Int, y: Int, width: Int = 9): Int {
+            return y * width + x
         }
     }
 }

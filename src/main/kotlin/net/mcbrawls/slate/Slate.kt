@@ -6,7 +6,7 @@ import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 
-abstract class Slate {
+open class Slate {
     /**
      * The screen handler type to be sent to the client.
      */
@@ -20,7 +20,7 @@ abstract class Slate {
     /**
      * The grid of tiles handled by this slate.
      */
-    open val tileGrid: TileGrid = TileGrid(9, 6)
+    val tiles: TileGrid = TileGrid(9, 6)
 
     /**
      * Whether this slate can be manually closed by the player.
@@ -44,6 +44,13 @@ abstract class Slate {
             }
 
             return slate.sendScreen(player)
+        }
+
+        /**
+         * Builds a default slate.
+         */
+        inline fun slate(builder: Slate.() -> Unit = {}): Slate {
+            return Slate().apply(builder)
         }
     }
 }

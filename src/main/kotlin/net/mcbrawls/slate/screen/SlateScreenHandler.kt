@@ -16,7 +16,7 @@ class SlateScreenHandler(
     }
 
     private fun setupSlots() {
-        val tileGrid = slate.tileGrid
+        val tileGrid = slate.tiles
         tileGrid.forEach { index, tile ->
             if (tile != null) {
                 val slot = tile.createSlot(slate, index, 0, 0)

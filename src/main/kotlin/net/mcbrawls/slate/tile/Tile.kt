@@ -11,4 +11,13 @@ class Tile(var stack: ItemStack) {
     fun createSlot(slate: Slate, index: Int, x: Int, y: Int): TileSlot {
         return TileSlot(slate, index, x, y)
     }
+
+    companion object {
+        /**
+         * Builds a default tile.
+         */
+        inline fun tile(stack: ItemStack, builder: Tile.() -> Unit = {}): Tile {
+            return Tile(stack).apply(builder)
+        }
+    }
 }
