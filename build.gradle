@@ -1,0 +1,117 @@
+plugins {
+    id "fabric-loom" version "1.8-SNAPSHOT"
+    id "org.jetbrains.kotlin.jvm"
+    id "maven-publish"
+}
+
+version = mod_version
+group = maven_group
+
+base {
+    archivesName = mod_id
+}
+
+repositories {
+    maven {
+        name = "Andante"
+        url  = "https://maven.andante.dev/releases/"
+    }
+}
+
+sourceSets {
+    test {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/${mod_id}.accesswidener")
+    splitEnvironmentSourceSets()
+
+    mods {
+        mod_id {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+
+    runs {
+        client {
+            ideConfigGenerated = false
+        }
+
+        testServer {
+            inherit(server)
+            name("Minecraft Server (Test)")
+            source(sourceSets.test)
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:$minecraft_version"
+    mappings "net.fabricmc:yarn:$minecraft_version+build.$yarn_build:v2"
+
+    modImplementation "net.fabricmc:fabric-loader:$loader_version"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
+
+    modImplementation "net.fabricmc:fabric-language-kotlin:$fabric_kotlin_version+kotlin.$kotlin_version"
+
+    testImplementation sourceSets.main.output
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = 21
+    }
+}
+
+java {
+    withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${base.archivesName.get()}"}
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = mod_id
+            from components.java
+        }
+    }
+
+    repositories {
+        // Andante's Maven
+        def env = System.getenv()
+        def mavenUsername = env["MAVEN_USERNAME_ANDANTE"]
+        def mavenPassword = env["MAVEN_PASSWORD_ANDANTE"]
+        if (mavenUsername && mavenPassword) {
+            maven {
+                name = "Andante"
+                url  = "https://maven.andante.dev/releases/"
+                credentials.username = mavenUsername
+                credentials.password = mavenPassword
+            }
+        }
+    }
+}

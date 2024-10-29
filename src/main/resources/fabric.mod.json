@@ -1,0 +1,49 @@
+{
+    "schemaVersion": 1,
+
+    "id": "slate",
+    "version": "${version}",
+
+    "name": "Slate",
+
+    "authors": [
+        "Andante"
+    ],
+    "contact": {
+        "sources": "https://github.com/mcbrawls/slate"
+    },
+
+    "license": "MIT",
+    "icon": "assets/slate/icon.png",
+
+    "environment": "*",
+
+    "entrypoints": {
+        "main": [
+            {
+                "value": "net.mcbrawls.slate.SlateMod",
+                "adapter": "kotlin"
+            }
+        ]
+    },
+
+    "mixins": [
+        "slate.mixins.json"
+    ],
+    "accessWidener": "slate.accesswidener",
+    "custom": {
+        "loom:injected_interfaces": {
+            "net/minecraft/class_3222": [
+                "net/mcbrawls/slate/SlatePlayer"
+            ]
+        }
+    },
+
+    "depends": {
+        "fabricloader": ">=0.16.7",
+        "minecraft": "~1.21.3",
+        "java": ">=21",
+        "fabric-api": "*",
+        "fabric-language-kotlin": "*"
+    }
+}
