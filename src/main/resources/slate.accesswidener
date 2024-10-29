@@ -1,1 +1,3 @@
 accessWidener v2 named
+
+extendable method net/minecraft/screen/ScreenHandler internalOnSlotClick (IILnet/minecraft/screen/slot/SlotActionType;Lnet/minecraft/entity/player/PlayerEntity;)V

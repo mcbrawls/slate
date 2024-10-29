@@ -1,10 +1,17 @@
 package net.mcbrawls.slate
 
+import net.mcbrawls.slate.callback.SlateCallback
+import net.mcbrawls.slate.callback.SlateClosedCallback
+import net.mcbrawls.slate.callback.SlateOpenCallback
+import net.mcbrawls.slate.callback.SlateTickCallback
+import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.mcbrawls.slate.screen.SlateScreenHandlerFactory
 import net.mcbrawls.slate.tile.TileGrid
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 open class Slate {
     /**
@@ -32,25 +39,91 @@ open class Slate {
      */
     var parent: Slate? = null
 
-    fun sendScreen(player: ServerPlayerEntity): Boolean {
-        player.openHandledScreen(SlateScreenHandlerFactory.create(this))
-        return true
+    /**
+     * The handled slate for when this slate is open.
+     */
+    var handledSlate: HandledSlate? = null
+
+    val callbacks: MutableList<SlateCallback> = mutableListOf()
+
+    /**
+     * Adds callbacks to this slate.
+     */
+    fun addCallbacks(vararg callbacksIn: SlateCallback) {
+        callbacks.addAll(callbacksIn)
+    }
+
+    fun open(player: ServerPlayerEntity): Boolean {
+        handledSlate?.also { handledSlate ->
+            if (player != handledSlate.player) {
+                logger.warn("Reopened already opened slate for different player: $this, $handledSlate")
+            }
+        }
+
+        // open handled screen
+        val syncId = runCatching {
+            val syncId = player.openHandledScreen(SlateScreenHandlerFactory.create(this))
+            syncId.orElseThrow()
+        }.getOrNull()
+
+        // store and return, if successful
+        if (syncId != null) {
+            val screenHandler = player.currentScreenHandler as? SlateScreenHandler
+            if (screenHandler != null) {
+                handledSlate = HandledSlate(player, syncId, screenHandler)
+                return true
+            }
+        }
+
+        return false
+    }
+
+    open fun onOpen(player: ServerPlayerEntity) {
+        callbacks.filterIsInstance<SlateOpenCallback>().forEach { callback ->
+            callback.onStatus(this, player)
+        }
+    }
+
+    fun tick() {
+        callbacks.filterIsInstance<SlateTickCallback>().forEach { callback ->
+            handledSlate?.also { handledSlate ->
+                callback.onStatus(this, handledSlate.player)
+            }
+        }
+    }
+
+    fun onClosed(player: ServerPlayerEntity) {
+        callbacks.filterIsInstance<SlateClosedCallback>().forEach { callback ->
+            callback.onStatus(this, player)
+        }
+
+        handledSlate = null
     }
 
     companion object {
-        fun openSlate(slate: Slate, player: ServerPlayerEntity): Boolean {
-            if (player.isDisconnected) {
-                return false
-            }
-
-            return slate.sendScreen(player)
-        }
+        val logger: Logger = LoggerFactory.getLogger(Slate::class.java)
 
         /**
          * Builds a default slate.
          */
         inline fun slate(builder: Slate.() -> Unit = {}): Slate {
             return Slate().apply(builder)
+        }
+
+        /**
+         * Opens a slate for the given player.
+         * @return whether the slate was opened successfully
+         */
+        fun openSlate(slate: Slate, player: ServerPlayerEntity): Boolean {
+            if (player.isDisconnected) {
+                return false
+            }
+
+            if (slate.open(player)) {
+                slate.onOpen(player)
+            }
+
+            return false
         }
     }
 }

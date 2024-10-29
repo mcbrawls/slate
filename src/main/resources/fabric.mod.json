@@ -18,15 +18,6 @@
 
     "environment": "*",
 
-    "entrypoints": {
-        "main": [
-            {
-                "value": "net.mcbrawls.slate.SlateMod",
-                "adapter": "kotlin"
-            }
-        ]
-    },
-
     "mixins": [
         "slate.mixins.json"
     ],

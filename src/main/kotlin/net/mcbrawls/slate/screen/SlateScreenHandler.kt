@@ -5,6 +5,9 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerType
+import net.minecraft.screen.slot.Slot
+import net.minecraft.screen.slot.SlotActionType
+import net.minecraft.server.network.ServerPlayerEntity
 
 class SlateScreenHandler(
     val slate: Slate,
@@ -33,8 +36,35 @@ class SlateScreenHandler(
         }
     }
 
+    fun setSlot(index: Int, slot: Slot) {
+        slots[index] = slot
+    }
+
+    override fun sendContentUpdates() {
+        super.sendContentUpdates()
+        slate.tick()
+    }
+
+    override fun onClosed(player: PlayerEntity) {
+        if (player is ServerPlayerEntity) {
+            slate.onClosed(player)
+        }
+
+        cursorStack = ItemStack.EMPTY
+    }
+
     override fun quickMove(player: PlayerEntity, slot: Int): ItemStack {
-        TODO("Not yet implemented")
+        return ItemStack.EMPTY
+    }
+
+    override fun internalOnSlotClick(slotIndex: Int, button: Int, actionType: SlotActionType, player: PlayerEntity) {
+        if (actionType != SlotActionType.PICKUP_ALL) {
+            println("$slotIndex, $button, $actionType, $player")
+        }
+    }
+
+    override fun canInsertIntoSlot(slot: Slot): Boolean {
+        return false
     }
 
     override fun canUse(player: PlayerEntity): Boolean {

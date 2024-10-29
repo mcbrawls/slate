@@ -4,6 +4,9 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.mcbrawls.slate.Slate.Companion.slate
 import net.mcbrawls.slate.SlatePlayer
+import net.mcbrawls.slate.callback.SlateClosedCallback
+import net.mcbrawls.slate.callback.SlateOpenCallback
+import net.mcbrawls.slate.callback.SlateTickCallback
 import net.mcbrawls.slate.tile.Tile.Companion.tile
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -19,6 +22,20 @@ class SlateTest : ModInitializer {
                 slatePlayer.openSlate(
                     slate {
                         tiles[0, 0] = tile(ItemStack(Items.STONE))
+
+                        addCallbacks(
+                            SlateOpenCallback { slate, player ->
+                                println("Opened")
+                            },
+                            SlateClosedCallback { slate, player ->
+                                println("Closed")
+                            },
+                            SlateTickCallback { slate, player ->
+                                if (player.age % (20 * 2) == 0) {
+                                    println("Ticked ${player.uuid}")
+                                }
+                            }
+                        )
                     }
                 )
                 ActionResult.SUCCESS_SERVER
