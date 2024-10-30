@@ -27,12 +27,9 @@ class SlateScreenHandler(
     }
 
     private fun drawSlots() {
-        val tileGrid = slate.tiles
-        val gridSize = tileGrid.size
-
         // send gui slots
-        for (tileIndex in 0 until gridSize) {
-            val tile = tileGrid[tileIndex]
+        for (tileIndex in 0 until slate.size) {
+            val tile = slate[tileIndex]
             if (tile != null) {
                 val slot = tile.createSlot(slate, tileIndex, 0, 0)
                 addSlot(slot)
@@ -74,7 +71,7 @@ class SlateScreenHandler(
         if (player is ServerPlayerEntity) {
             val modifiers = ClickModifier.parse(actionType)
             val clickType = ClickType.parse(button, actionType)
-            val tile = slate.tiles[slotIndex]
+            val tile = slate[slotIndex]
             val context = TileClickContext(tile, button, actionType, clickType, modifiers, player)
             slate.onSlotClicked(context)
         }

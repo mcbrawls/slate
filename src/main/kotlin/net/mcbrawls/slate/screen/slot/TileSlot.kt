@@ -14,7 +14,7 @@ class TileSlot(
     y: Int
 ) : Slot(SlateInventory, tileIndex, x, y) {
     override fun getStack(): ItemStack {
-        val tile = slate.tiles[index]
+        val tile = slate[index]
         return tile?.getDisplayedStack() ?: ItemStack.EMPTY
     }
 

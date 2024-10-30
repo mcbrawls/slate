@@ -7,6 +7,7 @@ import net.mcbrawls.slate.callback.SlateTickCallback
 import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.mcbrawls.slate.screen.SlateScreenHandlerFactory
 import net.mcbrawls.slate.screen.slot.TileClickContext
+import net.mcbrawls.slate.tile.Tile
 import net.mcbrawls.slate.tile.TileGrid
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
@@ -34,11 +35,26 @@ open class Slate {
     var handledSlate: HandledSlate? = null
     val player: ServerPlayerEntity? get() = handledSlate?.player
 
+    val size: Int get() = tiles.size
+
     /**
      * Provides a factory for setting up callbacks of this slate.
      */
     inline fun callbacks(factory: SlateCallbackHandler.() -> Unit) {
         callbackHandler = callbackHandler.apply(factory)
+    }
+
+    /**
+     * Builds a slate with this slate as the parent.
+     */
+    inline fun subslate(builder: Slate.() -> Unit = {}): Slate {
+        val slate = Slate()
+        slate.parent = this
+        return slate.apply(builder)
+    }
+
+    operator fun get(tileIndex: Int): Tile? {
+        return tiles[tileIndex]
     }
 
     fun onOpen(player: ServerPlayerEntity, handledSlate: HandledSlate) {
@@ -128,15 +144,6 @@ open class Slate {
     fun openParent(player: ServerPlayerEntity): Boolean {
         parent?.also { parent -> return parent.open(player) }
         return false
-    }
-
-    /**
-     * Builds a slate with this slate as the parent.
-     */
-    inline fun subslate(builder: Slate.() -> Unit = {}): Slate {
-        val slate = Slate()
-        slate.parent = this
-        return slate.apply(builder)
     }
 
     override fun toString(): String {
