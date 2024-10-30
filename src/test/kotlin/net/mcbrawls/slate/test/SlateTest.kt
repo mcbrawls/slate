@@ -37,10 +37,10 @@ class SlateTest : ModInitializer {
                     // center and log tests
                     val (centerX, centerY) = tiles.width / 2 to tiles.height / 2
                     tiles[centerX, centerY] = tile(ItemStack(Items.SAND)) {
-                        tooltip(Text.literal("Click me and check the log!"))
+                        tooltip(Text.literal("Click me!"))
 
-                        onClick { slate, tile, _ ->
-                            println("$slate, $tile")
+                        onClick { slate, tile, context ->
+                            context.player.sendMessage(Text.literal("$slate, $tile"))
                         }
                     }
 
