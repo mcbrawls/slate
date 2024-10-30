@@ -1,9 +1,9 @@
 package net.mcbrawls.slate.screen
 
 import net.mcbrawls.slate.Slate
-import net.mcbrawls.slate.screen.slot.TileClickContext
 import net.mcbrawls.slate.screen.slot.ClickModifier
 import net.mcbrawls.slate.screen.slot.ClickType
+import net.mcbrawls.slate.screen.slot.TileClickContext
 import net.mcbrawls.slate.screen.slot.TileSlot
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
