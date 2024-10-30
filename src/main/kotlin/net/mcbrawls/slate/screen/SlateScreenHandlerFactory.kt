@@ -25,7 +25,7 @@ class SlateScreenHandlerFactory(
          * Creates a custom screen handler factory out of the given slate.
          */
         fun create(slate: Slate): SlateScreenHandlerFactory {
-            return SlateScreenHandlerFactory(slate) { syncId, _, _ -> SlateScreenHandler(slate, slate.screenHandlerType, syncId) }
+            return SlateScreenHandlerFactory(slate) { syncId, _, player -> SlateScreenHandler(slate, player, slate.screenHandlerType, syncId) }
         }
     }
 }

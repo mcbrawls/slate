@@ -1,8 +1,15 @@
 package net.mcbrawls.slate.screen
 
 import net.mcbrawls.slate.Slate
+import net.mcbrawls.slate.screen.slot.TileClickContext
+import net.mcbrawls.slate.screen.slot.ClickModifier
+import net.mcbrawls.slate.screen.slot.ClickType
+import net.mcbrawls.slate.screen.slot.TileSlot
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
+import net.minecraft.network.packet.s2c.play.InventoryS2CPacket
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.Slot
@@ -11,46 +18,52 @@ import net.minecraft.server.network.ServerPlayerEntity
 
 class SlateScreenHandler(
     val slate: Slate,
+    val player: PlayerEntity,
     type: ScreenHandlerType<*>,
-    syncId: Int
+    syncId: Int,
 ) : ScreenHandler(type, syncId) {
     init {
-        setupSlots()
+        drawSlots()
     }
 
-    private fun setupSlots() {
+    private fun drawSlots() {
         val tileGrid = slate.tiles
-        tileGrid.forEach { index, tile ->
-            if (tile != null) {
-                val slot = tile.createSlot(slate, index, 0, 0)
-                addSlot(slot)
-            }
-        }
-
         val gridSize = tileGrid.size
-        for (x in 0 until 9) {
-            for (y in 0 .. 4) {
-                val slot = TileSlot(slate, y * 9 + x + gridSize, 0, 0)
+
+        // send gui slots
+        for (tileIndex in 0 until gridSize) {
+            val tile = tileGrid[tileIndex]
+            if (tile != null) {
+                val slot = tile.createSlot(slate, tileIndex, 0, 0)
                 addSlot(slot)
+            } else {
+                addSlot(TileSlot(slate, tileIndex, 0, 0))
             }
         }
     }
 
-    fun setSlot(index: Int, slot: Slot) {
-        slots[index] = slot
+    override fun syncState() {
+        super.syncState()
+
+        // manually update offhand
+        clearOffhandSlotClient()
     }
 
     override fun sendContentUpdates() {
         super.sendContentUpdates()
-        slate.tick()
+
+        if (player is ServerPlayerEntity) {
+            slate.onTick(player)
+        }
     }
 
     override fun onClosed(player: PlayerEntity) {
         if (player is ServerPlayerEntity) {
             slate.onClosed(player)
-        }
 
-        cursorStack = ItemStack.EMPTY
+            cursorStack = ItemStack.EMPTY
+            sendInventory(player)
+        }
     }
 
     override fun quickMove(player: PlayerEntity, slot: Int): ItemStack {
@@ -58,8 +71,17 @@ class SlateScreenHandler(
     }
 
     override fun internalOnSlotClick(slotIndex: Int, button: Int, actionType: SlotActionType, player: PlayerEntity) {
-        if (actionType != SlotActionType.PICKUP_ALL) {
-            println("$slotIndex, $button, $actionType, $player")
+        val isOffhandSwap = actionType == SlotActionType.SWAP && button == PlayerInventory.OFF_HAND_SLOT
+        if (isOffhandSwap) {
+            clearOffhandSlotClient()
+        }
+
+        if (player is ServerPlayerEntity) {
+            val modifiers = ClickModifier.parse(actionType)
+            val clickType = ClickType.parse(button, actionType)
+            val tile = slate.tiles[slotIndex]
+            val context = TileClickContext(tile, button, actionType, clickType, modifiers, player)
+            slate.onSlotClicked(context)
         }
     }
 
@@ -69,5 +91,23 @@ class SlateScreenHandler(
 
     override fun canUse(player: PlayerEntity): Boolean {
         return true
+    }
+
+    /**
+     * Updates the current offhand slot value on the client.
+     */
+    fun clearOffhandSlotClient() {
+        val player = slate.player ?: return
+        val packet = ScreenHandlerSlotUpdateS2CPacket(0, revision, PlayerInventory.OFF_HAND_SLOT + 5, ItemStack.EMPTY)
+        player.networkHandler.sendPacket(packet)
+    }
+
+    /**
+     * Updates the player's full inventory on the client.
+     */
+    fun sendInventory(player: ServerPlayerEntity) {
+        val playerScreenHandler = player.playerScreenHandler
+        val inventoryPacket = InventoryS2CPacket(playerScreenHandler.syncId, playerScreenHandler.nextRevision(), playerScreenHandler.stacks, playerScreenHandler.cursorStack)
+        player.networkHandler.sendPacket(inventoryPacket)
     }
 }

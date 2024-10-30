@@ -1,11 +1,12 @@
 package net.mcbrawls.slate
 
-import net.mcbrawls.slate.callback.SlateCallback
-import net.mcbrawls.slate.callback.SlateClosedCallback
+import net.mcbrawls.slate.callback.SlateCallbackHandler
+import net.mcbrawls.slate.callback.SlateCloseCallback
 import net.mcbrawls.slate.callback.SlateOpenCallback
 import net.mcbrawls.slate.callback.SlateTickCallback
 import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.mcbrawls.slate.screen.SlateScreenHandlerFactory
+import net.mcbrawls.slate.screen.slot.TileClickContext
 import net.mcbrawls.slate.tile.TileGrid
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
@@ -13,47 +14,58 @@ import net.minecraft.text.Text
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+typealias MinecraftUnit = net.minecraft.util.Unit
+
 open class Slate {
-    /**
-     * The screen handler type to be sent to the client.
-     */
     var screenHandlerType: ScreenHandlerType<*> = ScreenHandlerType.GENERIC_9X6
 
-    /**
-     * The title of the interface on the client.
-     */
     var title: Text = Text.empty()
+    val tiles: TileGrid = TileGrid(9, 6 + 4)
 
-    /**
-     * The grid of tiles handled by this slate.
-     */
-    val tiles: TileGrid = TileGrid(9, 6)
+    var callbackHandler: SlateCallbackHandler = SlateCallbackHandler()
 
-    /**
-     * Whether this slate can be manually closed by the player.
-     */
     var canBeClosed: Boolean = true
-
-    /**
-     * The parent of this slate.
-     */
     var parent: Slate? = null
 
-    /**
-     * The handled slate for when this slate is open.
-     */
     var handledSlate: HandledSlate? = null
-
-    val callbacks: MutableList<SlateCallback> = mutableListOf()
+    val player: ServerPlayerEntity? get() = handledSlate?.player
 
     /**
-     * Adds callbacks to this slate.
+     * Provides a factory for setting up callbacks of this slate.
      */
-    fun addCallbacks(vararg callbacksIn: SlateCallback) {
-        callbacks.addAll(callbacksIn)
+    inline fun callbacks(factory: SlateCallbackHandler.() -> Unit) {
+        callbackHandler = callbackHandler.apply(factory)
     }
 
-    fun open(player: ServerPlayerEntity): Boolean {
+    fun onOpen(player: ServerPlayerEntity, handledSlate: HandledSlate) {
+        callbackHandler.collectCallbacks<SlateOpenCallback>().invoke(this, player)
+
+        val screenHandler = handledSlate.screenHandler
+        screenHandler.clearOffhandSlotClient()
+    }
+
+    fun onTick(player: ServerPlayerEntity) {
+        callbackHandler.collectCallbacks<SlateTickCallback>().invoke(this, player)
+    }
+
+    fun onClosed(player: ServerPlayerEntity) {
+        callbackHandler.collectCallbacks<SlateCloseCallback>().invoke(this, player)
+        player.currentScreenHandler.syncState()
+        handledSlate = null
+    }
+
+    /**
+     * Called when any slot is clicked on the client.
+     */
+    open fun onSlotClicked(context: TileClickContext) {
+        context.tile?.also { tile ->
+            val clickType = context.clickType
+            val callback = tile.collectClickCallbacks(clickType)
+            callback.onClick(this, tile, context)
+        }
+    }
+
+    private fun open(player: ServerPlayerEntity): HandledSlate? {
         handledSlate?.also { handledSlate ->
             if (player != handledSlate.player) {
                 logger.warn("Reopened already opened slate for different player: $this, $handledSlate")
@@ -70,7 +82,21 @@ open class Slate {
         if (syncId != null) {
             val screenHandler = player.currentScreenHandler as? SlateScreenHandler
             if (screenHandler != null) {
-                handledSlate = HandledSlate(player, syncId, screenHandler)
+                val handled = HandledSlate(player, syncId, screenHandler)
+                handledSlate = handled
+                return handled
+            }
+        }
+
+        return null
+    }
+
+    fun tryClose(): Boolean {
+        handledSlate?.also { handledState ->
+            val player = handledState.player
+            val handler = handledState.screenHandler
+            if (player.currentScreenHandler == handler) {
+                player.closeHandledScreen()
                 return true
             }
         }
@@ -78,26 +104,17 @@ open class Slate {
         return false
     }
 
-    open fun onOpen(player: ServerPlayerEntity) {
-        callbacks.filterIsInstance<SlateOpenCallback>().forEach { callback ->
-            callback.onStatus(this, player)
-        }
+    /**
+     * Builds a slate with this slate as the parent.
+     */
+    inline fun subslate(builder: Slate.() -> Unit = {}): Slate {
+        return Slate()
+            .apply { parent = this@Slate }
+            .apply(builder)
     }
 
-    fun tick() {
-        callbacks.filterIsInstance<SlateTickCallback>().forEach { callback ->
-            handledSlate?.also { handledSlate ->
-                callback.onStatus(this, handledSlate.player)
-            }
-        }
-    }
-
-    fun onClosed(player: ServerPlayerEntity) {
-        callbacks.filterIsInstance<SlateClosedCallback>().forEach { callback ->
-            callback.onStatus(this, player)
-        }
-
-        handledSlate = null
+    override fun toString(): String {
+        return "Slate{$screenHandlerType:$title, $tiles}"
     }
 
     companion object {
@@ -119,8 +136,8 @@ open class Slate {
                 return false
             }
 
-            if (slate.open(player)) {
-                slate.onOpen(player)
+            slate.open(player)?.also { handledSlate ->
+                slate.onOpen(player, handledSlate)
             }
 
             return false

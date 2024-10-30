@@ -1,6 +1,6 @@
 package net.mcbrawls.slate.tile
 
-class TileGrid(
+data class TileGrid(
     val width: Int,
     val height: Int,
 ) {
@@ -9,18 +9,31 @@ class TileGrid(
      */
     val size: Int = width * height
 
+    /**
+     * A fixed-size array of the tiles stored in this grid.
+     */
     private val tiles: Array<Tile?> = arrayOfNulls(size)
 
+    /**
+     * The last available tile slot index.
+     */
     val lastIndex: Int = tiles.lastIndex
+
+    /**
+     * Whether this tile grid should be redrawn.
+     */
+    var dirty: Boolean = false
 
     /**
      * Sets a slot tile at the given index.
      */
     operator fun set(index: Int, tile: Tile) {
         assertSlotIndex(index)
-        tiles[index] = tile
 
-        // TODO on tile change
+        if (tile != tiles[index]) {
+            tiles[index] = tile
+            dirty = true
+        }
     }
 
     /**
@@ -38,6 +51,14 @@ class TileGrid(
      */
     operator fun get(index: Int): Tile? {
         return tiles.getOrNull(index)
+    }
+
+    /**
+     * Gets a slot tile from the given coordinates.
+     */
+    operator fun get(x: Int, y: Int): Tile? {
+        val index = toIndex(x, y)
+        return this[index]
     }
 
     /**

@@ -3,7 +3,8 @@
     "package": "net.mcbrawls.slate.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
-        "ServerPlayerEntityMixin"
+        "ServerPlayerEntityMixin",
+        "ServerPlayNetworkHandlerMixin"
     ],
     "injectors": {
         "defaultRequire": 1

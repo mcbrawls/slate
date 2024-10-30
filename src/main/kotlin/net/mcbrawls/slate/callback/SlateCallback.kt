@@ -1,3 +1,8 @@
 package net.mcbrawls.slate.callback
 
-interface SlateCallback
+import net.mcbrawls.slate.Slate
+import net.minecraft.server.network.ServerPlayerEntity
+
+fun interface SlateCallback {
+    operator fun invoke(slate: Slate, player: ServerPlayerEntity)
+}

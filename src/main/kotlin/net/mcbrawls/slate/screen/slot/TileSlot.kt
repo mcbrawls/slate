@@ -1,6 +1,7 @@
-package net.mcbrawls.slate.screen
+package net.mcbrawls.slate.screen.slot
 
 import net.mcbrawls.slate.Slate
+import net.mcbrawls.slate.screen.SlateInventory
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.slot.Slot
@@ -14,7 +15,7 @@ class TileSlot(
 ) : Slot(SlateInventory, tileIndex, x, y) {
     override fun getStack(): ItemStack {
         val tile = slate.tiles[index]
-        return tile?.stack ?: ItemStack.EMPTY
+        return tile?.getDisplayedStack() ?: ItemStack.EMPTY
     }
 
     override fun takeStack(amount: Int): ItemStack {
