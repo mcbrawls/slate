@@ -1,18 +1,25 @@
 package net.mcbrawls.slate.tile
 
+import net.minecraft.screen.ScreenHandlerType
+
 data class TileGrid(
     val width: Int,
     val height: Int,
 ) {
     /**
-     * The total size of the slate, based on the width and height.
+     * The size of the slate WITHOUT the player's inventory.
      */
-    val size: Int = width * height
+    val baseSize: Int = width * height
 
     /**
-     * A fixed-size array of the tiles stored in this grid.
+     * A fixed-size array of all tiles stored in this grid.
      */
-    private val tiles: Array<Tile?> = arrayOfNulls(size)
+    private val tiles: Array<Tile?> = arrayOfNulls(baseSize + INVENTORY_SIZE)
+
+    /**
+     * The total size of all tiles.
+     */
+    val size: Int = tiles.size
 
     /**
      * The last available tile slot index.
@@ -41,7 +48,18 @@ data class TileGrid(
      * @return the calculated index
      */
     operator fun set(x: Int, y: Int, tile: Tile): Int {
+        assertWidthMatchesInventory()
         val index = toIndex(x, y, width)
+        set(index, tile)
+        return index
+    }
+
+    /**
+     * Sets a slot tile from the given coordinates, within the player inventory space.
+     * @return the calculated index
+     */
+    fun setInventory(x: Int, y: Int, tile: Tile): Int {
+        val index = toIndex(x, y, INVENTORY_WIDTH) + baseSize
         set(index, tile)
         return index
     }
@@ -57,7 +75,16 @@ data class TileGrid(
      * Gets a slot tile from the given coordinates.
      */
     operator fun get(x: Int, y: Int): Tile? {
-        val index = toIndex(x, y)
+        assertWidthMatchesInventory()
+        val index = toIndex(x, y, width)
+        return this[index]
+    }
+
+    /**
+     * Gets a slot tile from the given coordinates.
+     */
+    fun getInventory(x: Int, y: Int): Tile? {
+        val index = toIndex(x, y, INVENTORY_WIDTH) + baseSize
         return this[index]
     }
 
@@ -67,8 +94,6 @@ data class TileGrid(
     fun clear(index: Int) {
         assertSlotIndex(index)
         tiles[index] = null
-
-        // TODO on tile change
     }
 
     fun forEach(action: (Int, Tile?) -> Unit) {
@@ -85,9 +110,82 @@ data class TileGrid(
         }
     }
 
+    /**
+     * Asserts that this tile grid's width matches the default player inventory width.
+     * Used to prevent usage of coordinates in non-matching tile grids.
+     *
+     * @throws IllegalStateException if the width does not match that of the player inventory
+     */
+    private fun assertWidthMatchesInventory() {
+        if (width != INVENTORY_WIDTH) {
+            throw IllegalStateException("Width is not consistent throughout tile grid")
+        }
+    }
+
     companion object {
-        fun toIndex(x: Int, y: Int, width: Int = 9): Int {
+        const val INVENTORY_WIDTH = 9
+        const val INVENTORY_HEIGHT = 4
+        const val INVENTORY_SIZE = INVENTORY_WIDTH * INVENTORY_HEIGHT
+
+        /**
+         * Converts coordinates to a tile grid index.
+         */
+        fun toIndex(x: Int, y: Int, width: Int): Int {
             return y * width + x
+        }
+
+        /**
+         * Creates a tile grid from the dimensions of the given screen handler type.
+         */
+        fun create(type: ScreenHandlerType<*>): TileGrid {
+            return TileGrid(type.width, type.height)
+        }
+
+        /**
+         * The width of this screen handler type.
+         */
+        val ScreenHandlerType<*>.width: Int get() {
+            return when(this) {
+                ScreenHandlerType.CRAFTING -> 2
+                ScreenHandlerType.SMITHING -> 4
+                ScreenHandlerType.GENERIC_3X3 -> 3
+                ScreenHandlerType.HOPPER -> 5
+                ScreenHandlerType.BREWING_STAND -> 1
+                ScreenHandlerType.ENCHANTMENT -> 1
+                ScreenHandlerType.STONECUTTER -> 1
+                ScreenHandlerType.BEACON -> 1
+                ScreenHandlerType.BLAST_FURNACE -> 1
+                ScreenHandlerType.FURNACE -> 1
+                ScreenHandlerType.SMOKER -> 1
+                ScreenHandlerType.ANVIL -> 1
+                ScreenHandlerType.GRINDSTONE -> 1
+                ScreenHandlerType.MERCHANT -> 1
+                ScreenHandlerType.CARTOGRAPHY_TABLE -> 1
+                ScreenHandlerType.LOOM -> 1
+                else -> 9
+            }
+        }
+
+        /**
+         * The height of this screen handler type.
+         */
+        val ScreenHandlerType<*>.height: Int get() {
+            return when(this) {
+                ScreenHandlerType.GENERIC_9X6 -> 6
+                ScreenHandlerType.CRAFTING -> 6
+                ScreenHandlerType.GENERIC_9X5 -> 5
+                ScreenHandlerType.GENERIC_9X4 -> 4
+                ScreenHandlerType.GENERIC_9X3 -> 3
+                ScreenHandlerType.GENERIC_9X2 -> 2
+                ScreenHandlerType.ENCHANTMENT -> 2
+                ScreenHandlerType.STONECUTTER -> 2
+                ScreenHandlerType.GENERIC_9X1 -> 1
+                ScreenHandlerType.BEACON -> 1
+                ScreenHandlerType.HOPPER -> 1
+                ScreenHandlerType.BREWING_STAND -> 1
+                ScreenHandlerType.SMITHING -> 1
+                else -> 3
+            }
         }
     }
 }

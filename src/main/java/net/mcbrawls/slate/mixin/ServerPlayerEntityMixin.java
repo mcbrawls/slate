@@ -70,6 +70,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sl
 
     @Override
     public boolean openSlate(Slate slate) {
-        return Slate.Companion.openSlate(slate, (ServerPlayerEntity) (Object) this);
+        return slate.open((ServerPlayerEntity) (Object) this);
     }
 }

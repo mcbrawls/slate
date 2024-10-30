@@ -2,7 +2,6 @@ package net.mcbrawls.slate.test
 
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.UseItemCallback
-import net.mcbrawls.slate.Slate
 import net.mcbrawls.slate.Slate.Companion.slate
 import net.mcbrawls.slate.SlatePlayer
 import net.mcbrawls.slate.tile.Tile.Companion.tile
@@ -11,6 +10,7 @@ import net.minecraft.component.type.BundleContentsComponent
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.registry.Registries
+import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.math.random.Random
@@ -29,6 +29,7 @@ class SlateTest : ModInitializer {
                     tiles[1, 0] = tile(ItemStack(Items.WHITE_WOOL))
 
                     // bound tests
+                    tiles.setInventory(0, 0, tile(ItemStack(Items.ORANGE_WOOL)))
                     tiles[tiles.width - 1, 0] = tile(ItemStack(Items.RED_WOOL))
                     tiles[0, tiles.height - 1] = tile(ItemStack(Items.RED_WOOL))
                     tiles[tiles.lastIndex] = tile(ItemStack(Items.RED_WOOL))
@@ -73,9 +74,7 @@ class SlateTest : ModInitializer {
                                     tooltip(Text.literal("Back (Open this slate's parent)"))
                                     onClick { slate, _, context ->
                                         // open parent slate
-                                        slate.parent?.also { parent ->
-                                            Slate.openSlate(parent, context.player)
-                                        }
+                                        slate.openParent(context.player)
                                     }
                                 }
 
@@ -90,15 +89,42 @@ class SlateTest : ModInitializer {
                                 }
                             }
 
-                            Slate.openSlate(subslate, context.player)
+                            subslate.open(context.player)
+                        }
+                    }
+
+                    // open subslate test
+                    tiles[centerX + 1, centerY + 1] = tile(ItemStack(Items.ANVIL)) {
+                        tooltip(Text.literal("Open an anvil subslate"))
+
+                        onClick { _, _, context ->
+                            val subslate = subslate {
+                                screenHandlerType = ScreenHandlerType.ANVIL
+                                title = Text.literal("Anvil Subslate")
+
+                                // on click open parent test
+                                tiles[0] = tile(ItemStack(Items.ARROW)) {
+                                    tooltip(Text.literal("Back (Open this slate's parent)"))
+                                    onClick { slate, _, context ->
+                                        // open parent slate
+                                        slate.openParent(context.player)
+                                    }
+                                }
+
+                                // bounds tests
+                                tiles.setInventory(0, 0, tile(ItemStack(Items.ORANGE_WOOL)))
+                                tiles[tiles.lastIndex] = tile(ItemStack(Items.RED_WOOL))
+                            }
+
+                            subslate.open(context.player)
                         }
                     }
 
                     // on click close test
                     tiles[centerX, centerY + 2] = tile(ItemStack(Items.ARROW)) {
                         tooltip(Text.literal("Exit this slate"))
-                        onClick { slate, _, _ ->
-                            slate.tryClose()
+                        onClick { slate, _, context ->
+                            slate.close(context.player)
                         }
                     }
 

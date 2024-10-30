@@ -18,9 +18,13 @@ typealias MinecraftUnit = net.minecraft.util.Unit
 
 open class Slate {
     var screenHandlerType: ScreenHandlerType<*> = ScreenHandlerType.GENERIC_9X6
+        set(value) {
+            field = value
+            tiles = TileGrid.create(value)
+        }
 
     var title: Text = Text.empty()
-    val tiles: TileGrid = TileGrid(9, 6 + 4)
+    var tiles: TileGrid = TileGrid.create(screenHandlerType)
 
     var callbackHandler: SlateCallbackHandler = SlateCallbackHandler()
 
@@ -65,7 +69,11 @@ open class Slate {
         }
     }
 
-    private fun open(player: ServerPlayerEntity): HandledSlate? {
+    /**
+     * Opens a slate for the given player.
+     * @return whether the slate was opened successfully
+     */
+    fun open(player: ServerPlayerEntity): Boolean {
         handledSlate?.also { handledSlate ->
             if (player != handledSlate.player) {
                 logger.warn("Reopened already opened slate for different player: $this, $handledSlate")
@@ -84,16 +92,19 @@ open class Slate {
             if (screenHandler != null) {
                 val handled = HandledSlate(player, syncId, screenHandler)
                 handledSlate = handled
-                return handled
+                onOpen(player, handled)
+                return true
             }
         }
 
-        return null
+        return false
     }
 
-    fun tryClose(): Boolean {
+    /**
+     * Closes this slate if it is open.
+     */
+    fun close(player: ServerPlayerEntity): Boolean {
         handledSlate?.also { handledState ->
-            val player = handledState.player
             val handler = handledState.screenHandler
             if (player.currentScreenHandler == handler) {
                 player.closeHandledScreen()
@@ -105,12 +116,20 @@ open class Slate {
     }
 
     /**
+     * Opens the parent of this slate, if present.
+     */
+    fun openParent(player: ServerPlayerEntity): Boolean {
+        parent?.also { parent -> return parent.open(player) }
+        return false
+    }
+
+    /**
      * Builds a slate with this slate as the parent.
      */
     inline fun subslate(builder: Slate.() -> Unit = {}): Slate {
-        return Slate()
-            .apply { parent = this@Slate }
-            .apply(builder)
+        val slate = Slate()
+        slate.parent = this
+        return slate.apply(builder)
     }
 
     override fun toString(): String {
@@ -125,22 +144,6 @@ open class Slate {
          */
         inline fun slate(builder: Slate.() -> Unit = {}): Slate {
             return Slate().apply(builder)
-        }
-
-        /**
-         * Opens a slate for the given player.
-         * @return whether the slate was opened successfully
-         */
-        fun openSlate(slate: Slate, player: ServerPlayerEntity): Boolean {
-            if (player.isDisconnected) {
-                return false
-            }
-
-            slate.open(player)?.also { handledSlate ->
-                slate.onOpen(player, handledSlate)
-            }
-
-            return false
         }
     }
 }
