@@ -42,11 +42,10 @@ class SlateScreenHandler(
         }
     }
 
-    override fun syncState() {
-        super.syncState()
-
-        // manually update offhand
-        clearOffhandSlotClient()
+    fun onAnvilInput(input: String) {
+        if (player is ServerPlayerEntity) {
+            slate.onAnvilInput(player, input)
+        }
     }
 
     override fun sendContentUpdates() {
@@ -66,10 +65,6 @@ class SlateScreenHandler(
         }
     }
 
-    override fun quickMove(player: PlayerEntity, slot: Int): ItemStack {
-        return ItemStack.EMPTY
-    }
-
     override fun internalOnSlotClick(slotIndex: Int, button: Int, actionType: SlotActionType, player: PlayerEntity) {
         val isOffhandSwap = actionType == SlotActionType.SWAP && button == PlayerInventory.OFF_HAND_SLOT
         if (isOffhandSwap) {
@@ -85,12 +80,11 @@ class SlateScreenHandler(
         }
     }
 
-    override fun canInsertIntoSlot(slot: Slot): Boolean {
-        return false
-    }
+    override fun syncState() {
+        super.syncState()
 
-    override fun canUse(player: PlayerEntity): Boolean {
-        return true
+        // manually update offhand
+        clearOffhandSlotClient()
     }
 
     /**
@@ -109,5 +103,17 @@ class SlateScreenHandler(
         val playerScreenHandler = player.playerScreenHandler
         val inventoryPacket = InventoryS2CPacket(playerScreenHandler.syncId, playerScreenHandler.nextRevision(), playerScreenHandler.stacks, playerScreenHandler.cursorStack)
         player.networkHandler.sendPacket(inventoryPacket)
+    }
+
+    override fun quickMove(player: PlayerEntity, slot: Int): ItemStack {
+        return ItemStack.EMPTY
+    }
+
+    override fun canInsertIntoSlot(slot: Slot): Boolean {
+        return false
+    }
+
+    override fun canUse(player: PlayerEntity): Boolean {
+        return true
     }
 }

@@ -7,6 +7,7 @@ import net.mcbrawls.slate.Slate
  */
 open class SlateCallbackHandler {
     val callbacks: MutableList<SlateCallback> = mutableListOf()
+    val inputCallbacks: MutableList<SlateInputCallback> = mutableListOf()
 
     /**
      * Adds a callback invoked when the slate is opened.
@@ -30,6 +31,13 @@ open class SlateCallbackHandler {
     }
 
     /**
+     * Adds a callback invoked when the slate input changes, namely for anvil screen handler types.
+     */
+    fun onInput(callback: SlateInputCallback) {
+        inputCallbacks.add(callback)
+    }
+
+    /**
      * Combines all callbacks for the given type into one callable object.
      */
     inline fun <reified T : SlateCallback> collectCallbacks(): SlateCallback {
@@ -37,6 +45,15 @@ open class SlateCallbackHandler {
             callbacks
                 .filterIsInstance<T>()
                 .forEach { callback -> callback.invoke(slate, player) }
+        }
+    }
+
+    /**
+     * Combines all callbacks for the given type into one callable object.
+     */
+    fun collectInputCallbacks(): SlateInputCallback {
+        return SlateInputCallback { slate, player, input ->
+            inputCallbacks.forEach { callback -> callback.onInput(slate, player, input) }
         }
     }
 }

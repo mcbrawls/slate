@@ -7,6 +7,7 @@ import net.mcbrawls.slate.screen.SlateScreenHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
+import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
 import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
@@ -17,6 +18,9 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler {
@@ -47,5 +51,14 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         }
 
         original.call(packet);
+    }
+
+    @Inject(method = "onRenameItem", at = @At("TAIL"))
+    private void handleAnvilInput(RenameItemC2SPacket packet, CallbackInfo ci) {
+        if (this.player.currentScreenHandler instanceof SlateScreenHandler handler) {
+            String input = packet.getName();
+            handler.onAnvilInput(input);
+            handler.syncState();
+        }
     }
 }

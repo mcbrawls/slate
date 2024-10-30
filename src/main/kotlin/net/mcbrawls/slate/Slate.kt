@@ -70,6 +70,13 @@ open class Slate {
     }
 
     /**
+     * Called when the client input changes.
+     */
+    open fun onAnvilInput(player: ServerPlayerEntity, input: String) {
+        callbackHandler.collectInputCallbacks().onInput(this, player, input)
+    }
+
+    /**
      * Opens a slate for the given player.
      * @return whether the slate was opened successfully
      */

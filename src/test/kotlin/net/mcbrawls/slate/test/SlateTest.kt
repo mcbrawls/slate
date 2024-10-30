@@ -114,6 +114,12 @@ class SlateTest : ModInitializer {
                                 // bounds tests
                                 tiles.setInventory(0, 0, tile(ItemStack(Items.ORANGE_WOOL)))
                                 tiles[tiles.lastIndex] = tile(ItemStack(Items.RED_WOOL))
+
+                                callbacks {
+                                    onInput { _, _, input ->
+                                        println(input)
+                                    }
+                                }
                             }
 
                             subslate.open(context.player)
