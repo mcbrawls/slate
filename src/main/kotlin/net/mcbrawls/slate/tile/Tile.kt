@@ -6,10 +6,13 @@ import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.screen.slot.TileSlot
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.LoreComponent
+import net.minecraft.component.type.NbtComponent
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
+import net.minecraft.util.Identifier
 
 /**
  * A slot within a slate.
@@ -21,6 +24,11 @@ open class Tile(var stack: ItemStack) {
      * All are formatted as reset by default, not vanilla's purple color.
      */
     val tooltip: MutableList<Text> = mutableListOf()
+
+    /**
+     * Whether this tile can be picked up and moved by the client.
+     */
+    var immovable: Boolean = true
 
     private val clickCallbacks: MutableList<Pair<ClickType, TileClickCallback>> = mutableListOf()
 
@@ -63,7 +71,13 @@ open class Tile(var stack: ItemStack) {
     fun getDisplayedStack(): ItemStack {
         val stack = stack.copy()
 
-        // add tooltip components
+        addTooltip(stack)
+        addImmovable(stack)
+
+        return stack
+    }
+
+    internal fun addTooltip(stack: ItemStack) {
         if (tooltip.isEmpty()) {
             stack.set(DataComponentTypes.HIDE_TOOLTIP, MinecraftUnit.INSTANCE)
         } else {
@@ -83,8 +97,19 @@ open class Tile(var stack: ItemStack) {
                 )
             }
         }
+    }
 
-        return stack
+    internal fun addImmovable(stack: ItemStack) {
+        if (immovable) {
+            val nbt = NbtCompound()
+
+            val bukkitNbt = NbtCompound()
+            bukkitNbt.putBoolean(IMMOVABLE_TAG, true)
+
+            nbt.put(BUKKIT_COMPOUND_ID, bukkitNbt)
+
+            stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt))
+        }
     }
 
     override fun toString(): String {
@@ -93,6 +118,11 @@ open class Tile(var stack: ItemStack) {
     }
 
     companion object {
+        const val BUKKIT_COMPOUND_ID = "PublicBukkitValues"
+        const val NOXESIUM_NAMESPACE = "noxesium"
+
+        val IMMOVABLE_TAG: String = Identifier.of(NOXESIUM_NAMESPACE, "immovable").toString()
+
         /**
          * Builds a default tile.
          */
