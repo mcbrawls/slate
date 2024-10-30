@@ -18,22 +18,42 @@ import org.slf4j.LoggerFactory
 typealias MinecraftUnit = net.minecraft.util.Unit
 
 open class Slate {
+    /**
+     * The screen handler type sent to the client.
+     * Affects what the client sees and how it communicates back to the server.
+     */
     var screenHandlerType: ScreenHandlerType<*> = ScreenHandlerType.GENERIC_9X6
         set(value) {
             field = value
             tiles = TileGrid.create(value)
         }
 
+    /**
+     * The title of the screen handler.
+     */
     var title: Text = Text.empty()
+
+    /**
+     * The base tile grid of this slate.
+     */
     var tiles: TileGrid = TileGrid.create(screenHandlerType)
 
+    /**
+     * Handles all callbacks for this slate.
+     */
     var callbackHandler: SlateCallbackHandler = SlateCallbackHandler()
 
+    /**
+     * Whether this slate can be closed manually by the player.
+     */
     var canBeClosed: Boolean = true
+
+    /**
+     * The parent of this slate, which can be returned to.
+     */
     var parent: Slate? = null
 
-    var handledSlate: HandledSlate? = null
-    val player: ServerPlayerEntity? get() = handledSlate?.player
+    private var handledSlate: HandledSlate? = null
 
     val size: Int get() = tiles.size
 
@@ -57,19 +77,25 @@ open class Slate {
         return tiles[tileIndex]
     }
 
-    fun onOpen(player: ServerPlayerEntity, handledSlate: HandledSlate) {
+    internal fun onOpen(player: ServerPlayerEntity, handledSlate: HandledSlate) {
+        // invoke callbacks
         callbackHandler.collectCallbacks<SlateOpenCallback>().invoke(this, player)
 
+        // manually clear offhand slot as vanilla does not handle this
         val screenHandler = handledSlate.screenHandler
         screenHandler.clearOffhandSlotClient()
     }
 
-    fun onTick(player: ServerPlayerEntity) {
+    internal fun onTick(player: ServerPlayerEntity) {
+        // invoke callbacks
         callbackHandler.collectCallbacks<SlateTickCallback>().invoke(this, player)
     }
 
-    fun onClosed(player: ServerPlayerEntity) {
+    internal fun onClosed(player: ServerPlayerEntity) {
+        // invoke callbacks
         callbackHandler.collectCallbacks<SlateCloseCallback>().invoke(this, player)
+
+        // clean up
         player.currentScreenHandler.syncState()
         handledSlate = null
     }
@@ -88,7 +114,7 @@ open class Slate {
     /**
      * Called when the client input changes.
      */
-    open fun onAnvilInput(player: ServerPlayerEntity, input: String) {
+    internal fun onAnvilInput(player: ServerPlayerEntity, input: String) {
         callbackHandler.collectInputCallbacks().onInput(this, player, input)
     }
 

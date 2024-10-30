@@ -88,9 +88,10 @@ class SlateScreenHandler(
      * Updates the current offhand slot value on the client.
      */
     fun clearOffhandSlotClient() {
-        val player = slate.player ?: return
-        val packet = ScreenHandlerSlotUpdateS2CPacket(0, revision, PlayerInventory.OFF_HAND_SLOT + 5, ItemStack.EMPTY)
-        player.networkHandler.sendPacket(packet)
+        if (player is ServerPlayerEntity) {
+            val packet = ScreenHandlerSlotUpdateS2CPacket(0, revision, PlayerInventory.OFF_HAND_SLOT + 5, ItemStack.EMPTY)
+            player.networkHandler.sendPacket(packet)
+        }
     }
 
     /**
