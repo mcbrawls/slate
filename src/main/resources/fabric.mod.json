@@ -5,6 +5,7 @@
     "version": "${version}",
 
     "name": "Slate",
+    "description": "A library for creating clean server-side screens easily.",
 
     "authors": [
         "Andante"

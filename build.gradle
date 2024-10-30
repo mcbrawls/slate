@@ -97,6 +97,20 @@ publishing {
         mavenJava(MavenPublication) {
             artifactId = mod_id
             from components.java
+
+            pom {
+                name = "Slate"
+                description = "A library for creating clean server-side screens easily."
+                url = "https://mcbrawls.net"
+
+                licenses {
+                    license {
+                        name = "MIT"
+                        url = "https://opensource.org/licenses/MIT"
+                        distribution = "repo"
+                    }
+                }
+            }
         }
     }
 
