@@ -3,8 +3,10 @@ package net.mcbrawls.slate
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.mcbrawls.slate.screen.InventorySlateScreenHandler
+import net.mcbrawls.slate.screen.slot.ClickModifier
 import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.screen.slot.TileClickContext
+import net.mcbrawls.slate.tile.Tile
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.screen.slot.SlotActionType
 import net.minecraft.server.network.ServerPlayerEntity
@@ -17,6 +19,23 @@ object SlateListeners : ModInitializer, UseItemCallback {
         UseItemCallback.EVENT.register(this)
     }
 
+    fun getSelectedSlotTile(slate: InventorySlate, player: PlayerEntity): Tile? {
+        val index = getSelectedSlotTileIndex(slate, player)
+        return slate[index]
+    }
+
+    fun getSelectedSlotTileIndex(slate: InventorySlate, player: PlayerEntity): Int {
+        return slate.hotbarStartIndex + player.inventory.selectedSlot + 1
+    }
+
+    fun getClickModifiers(player: PlayerEntity): Collection<ClickModifier> {
+        return buildSet {
+            if (player.isSneaky) {
+                add(ClickModifier.SHIFT)
+            }
+        }
+    }
+
     private fun interact(player: ServerPlayerEntity, hand: Hand, button: Int) {
         if (hand != Hand.MAIN_HAND) {
             return
@@ -24,12 +43,9 @@ object SlateListeners : ModInitializer, UseItemCallback {
 
         val currentScreenHandler = player.currentScreenHandler
         if (currentScreenHandler is InventorySlateScreenHandler) {
-            val selectedSlot = player.inventory.selectedSlot
             val slate = currentScreenHandler.slate
-
-            val slotIndex = slate.hotbarStartIndex + selectedSlot + 1
-            val tile = slate[slotIndex]
-            val context = TileClickContext(tile, button, SlotActionType.PICKUP, ClickType.parse(button, SlotActionType.PICKUP), emptySet(), player)
+            val tile = getSelectedSlotTile(slate, player)
+            val context = TileClickContext(tile, button, SlotActionType.PICKUP, ClickType.parse(button, SlotActionType.PICKUP), getClickModifiers(player), player, false)
             slate.onSlotClicked(context)
 
             currentScreenHandler.syncState()

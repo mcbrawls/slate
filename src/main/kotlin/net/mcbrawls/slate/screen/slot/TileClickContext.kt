@@ -34,4 +34,10 @@ data class TileClickContext(
      * The player who clicked the slot.
      */
     val player: ServerPlayerEntity,
+
+    /**
+     * Whether this click took place within a screen.
+     * False if an inventory slate.
+     */
+    val withinScreen: Boolean,
 )

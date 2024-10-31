@@ -72,7 +72,7 @@ open class SlateScreenHandler<T : Slate>(
             val modifiers = ClickModifier.parse(actionType)
             val clickType = ClickType.parse(button, actionType)
             val tile = slate[slotIndex]
-            val context = TileClickContext(tile, button, actionType, clickType, modifiers, player)
+            val context = TileClickContext(tile, button, actionType, clickType, modifiers, player, true)
             slate.onSlotClicked(context)
         }
     }

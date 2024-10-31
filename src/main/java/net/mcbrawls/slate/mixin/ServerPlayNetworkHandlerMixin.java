@@ -2,9 +2,14 @@ package net.mcbrawls.slate.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.mcbrawls.slate.InventorySlate;
 import net.mcbrawls.slate.Slate;
 import net.mcbrawls.slate.SlateListeners;
 import net.mcbrawls.slate.screen.SlateScreenHandler;
+import net.mcbrawls.slate.screen.slot.ClickType;
+import net.mcbrawls.slate.screen.slot.TileClickContext;
+import net.mcbrawls.slate.tile.Tile;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
@@ -14,6 +19,7 @@ import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
 import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ConnectedClientData;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
@@ -38,7 +44,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         ServerPlayNetworkHandler that = (ServerPlayNetworkHandler) (Object) this;
 
         ScreenHandler screenHandler = this.player.currentScreenHandler;
-        if (screenHandler instanceof SlateScreenHandler handler) {
+        if (screenHandler instanceof SlateScreenHandler<?> handler) {
             Slate slate = handler.getSlate();
             if (!slate.getCanPlayerClose()) {
                 NetworkThreadUtils.forceMainThread(packet, that, this.player.getServerWorld());
@@ -60,7 +66,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
 
     @Inject(method = "onRenameItem", at = @At("TAIL"))
     private void handleAnvilInput(RenameItemC2SPacket packet, CallbackInfo ci) {
-        if (this.player.currentScreenHandler instanceof SlateScreenHandler handler) {
+        if (this.player.currentScreenHandler instanceof SlateScreenHandler<?> handler) {
             String input = packet.getName();
             handler.onAnvilInput(input);
             handler.syncState();
@@ -77,5 +83,29 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     private void handleClientItemUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
         ServerPlayerEntity player = this.player;
         SlateListeners.INSTANCE.onUse$slate(player, packet.getHand());
+    }
+
+    @WrapOperation(
+            method = "onPlayerAction",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;dropSelectedItem(Z)Z"
+            )
+    )
+    private boolean handleDrop(ServerPlayerEntity player, boolean entireStack, Operation<Boolean> original) {
+        if (this.player.currentScreenHandler instanceof SlateScreenHandler<?> handler) {
+            Slate slate = handler.getSlate();
+            if (slate instanceof InventorySlate inventorySlate) {
+                SlateListeners listeners = SlateListeners.INSTANCE;
+                Tile tile = listeners.getSelectedSlotTile(inventorySlate, player);
+                int button = 0;
+                SlotActionType actionType = SlotActionType.THROW;
+                TileClickContext context = new TileClickContext(tile, button, actionType, ClickType.Companion.parse(button, actionType), listeners.getClickModifiers(player), player, false);
+                slate.onSlotClicked(context);
+                return false;
+            }
+        }
+
+        return original.call(player, entireStack);
     }
 }

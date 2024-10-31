@@ -70,6 +70,10 @@ class SlateTest : ModInitializer {
                     ) {
                         tooltip(Text.literal("Open a subslate"))
 
+                        onClick(ClickType.THROW) { _, _, context ->
+                            println("${context.button}")
+                        }
+
                         onClick { _, _, context ->
                             val subslate = subslate {
                                 title = Text.literal("Subslate")
@@ -122,8 +126,24 @@ class SlateTest : ModInitializer {
 
                                 tiles[tiles.lastIndex - 4] = tile(ItemStack(Items.ECHO_SHARD)) {
                                     tooltip(Text.literal("Back (Reopen main slate)"))
+
+                                    // TODO shortcut way of handling this?
                                     onClick(ClickType.RIGHT) { slate, _, context ->
-                                        slate.openParent(context.player)
+                                        if (!context.withinScreen) {
+                                            slate.openParent(context.player)
+                                        }
+                                    }
+
+                                    onClick(ClickType.LEFT) { slate, _, context ->
+                                        if (context.withinScreen) {
+                                            slate.openParent(context.player)
+                                        }
+                                    }
+
+                                    // END TODO
+
+                                    onClick(ClickType.THROW) { _, _, context ->
+                                        println(context)
                                     }
                                 }
 
