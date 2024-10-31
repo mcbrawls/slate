@@ -6,7 +6,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 /**
  * A slate's handled data.
  */
-data class HandledSlate(
+data class HandledSlate<T : Slate>(
     /**
      * The player who is viewing the slate.
      */
@@ -20,5 +20,5 @@ data class HandledSlate(
     /**
      * The handler for the slate screen.
      */
-    val screenHandler: SlateScreenHandler,
+    val screenHandler: SlateScreenHandler<T>,
 )

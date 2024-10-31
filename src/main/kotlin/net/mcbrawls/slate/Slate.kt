@@ -14,46 +14,49 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.OptionalInt
 
 typealias MinecraftUnit = net.minecraft.util.Unit
 
 open class Slate {
     /**
-     * The screen handler type sent to the client.
-     * Affects what the client sees and how it communicates back to the server.
-     */
-    var screenHandlerType: ScreenHandlerType<*> = ScreenHandlerType.GENERIC_9X6
-        set(value) {
-            field = value
-            tiles = TileGrid.create(value)
-        }
-
-    /**
      * The title of the screen handler.
      */
-    var title: Text = Text.empty()
+    open var title: Text = Text.empty()
 
     /**
      * The base tile grid of this slate.
      */
-    var tiles: TileGrid = TileGrid.create(screenHandlerType)
+    open var tiles: TileGrid = TileGrid.create(ScreenHandlerType.GENERIC_9X6)
 
     /**
      * Handles all callbacks for this slate.
      */
-    var callbackHandler: SlateCallbackHandler = SlateCallbackHandler()
+    open var callbackHandler: SlateCallbackHandler = SlateCallbackHandler()
 
     /**
      * Whether this slate can be closed manually by the player.
      */
-    var canBeClosed: Boolean = true
+    open var canPlayerClose: Boolean = true
+
+    /**
+     * Whether this slate can or should be closed naturally at all.
+     */
+    open var canBeClosed: Boolean = true
 
     /**
      * The parent of this slate, which can be returned to.
      */
     var parent: Slate? = null
 
-    private var handledSlate: HandledSlate? = null
+    /**
+     * Whether this slate should be synced.
+     */
+    var dirty: Boolean = true
+
+    val screenHandlerType: ScreenHandlerType<*> get() = tiles.screenHandlerType
+
+    private var handledSlate: HandledSlate<out Slate>? = null
 
     val size: Int get() = tiles.size
 
@@ -67,8 +70,8 @@ open class Slate {
     /**
      * Builds a slate with this slate as the parent.
      */
-    inline fun subslate(builder: Slate.() -> Unit = {}): Slate {
-        val slate = Slate()
+    inline fun subslate(factory: () -> Slate = ::Slate, builder: Slate.() -> Unit = {}): Slate {
+        val slate = factory.invoke()
         slate.parent = this
         return slate.apply(builder)
     }
@@ -77,16 +80,23 @@ open class Slate {
         return tiles[tileIndex]
     }
 
-    internal fun onOpen(player: ServerPlayerEntity, handledSlate: HandledSlate) {
+    internal fun onOpen(player: ServerPlayerEntity, handledSlate: HandledSlate<out Slate>) {
         // invoke callbacks
         callbackHandler.collectCallbacks<SlateOpenCallback>().invoke(this, player)
 
         // manually clear offhand slot as vanilla does not handle this
         val screenHandler = handledSlate.screenHandler
         screenHandler.clearOffhandSlotClient()
+
+        dirty = true
     }
 
     internal fun onTick(player: ServerPlayerEntity) {
+        if (dirty) {
+            handledSlate?.screenHandler?.syncState()
+            dirty = false
+        }
+
         // invoke callbacks
         callbackHandler.collectCallbacks<SlateTickCallback>().invoke(this, player)
     }
@@ -122,31 +132,43 @@ open class Slate {
      * Opens a slate for the given player.
      * @return whether the slate was opened successfully
      */
-    fun open(player: ServerPlayerEntity): Boolean {
+    open fun open(player: ServerPlayerEntity): Boolean {
         handledSlate?.also { handledSlate ->
             if (player != handledSlate.player) {
-                logger.warn("Reopened already opened slate for different player: $this, $handledSlate")
+                logger.warn("Tried to reopen already opened slate for different player: $this, $handledSlate")
+            } else {
+                logger.warn("Tried to reopen already opened slate: $this, $handledSlate")
             }
+
+            return false
         }
 
         // open handled screen
-        val syncId = runCatching {
-            val syncId = player.openHandledScreen(SlateScreenHandlerFactory.create(this))
-            syncId.orElseThrow()
-        }.getOrNull()
+        val maybeSyncId = openHandledScreen(player)
+        val syncId = if (maybeSyncId.isPresent) {
+            maybeSyncId.orElseThrow()
+        } else {
+            return false
+        }
 
         // store and return, if successful
-        if (syncId != null) {
-            val screenHandler = player.currentScreenHandler as? SlateScreenHandler
-            if (screenHandler != null) {
-                val handled = HandledSlate(player, syncId, screenHandler)
-                handledSlate = handled
-                onOpen(player, handled)
-                return true
-            }
+        val screenHandler = player.currentScreenHandler as? SlateScreenHandler<*>
+        if (screenHandler != null) {
+            val handled = HandledSlate(player, syncId, screenHandler)
+            handledSlate = handled
+            onOpen(player, handled)
+            return true
         }
 
         return false
+    }
+
+    /**
+     * Opens the handled screen for this player.
+     * @return an optional sync id integer
+     */
+    open fun openHandledScreen(player: ServerPlayerEntity): OptionalInt {
+        return player.openHandledScreen(SlateScreenHandlerFactory.create(this))
     }
 
     /**
@@ -173,7 +195,7 @@ open class Slate {
     }
 
     override fun toString(): String {
-        return "Slate{$screenHandlerType:$title, $tiles}"
+        return "Slate{${tiles.screenHandlerType}:$title, $tiles}"
     }
 
     companion object {
@@ -182,8 +204,8 @@ open class Slate {
         /**
          * Builds a default slate.
          */
-        inline fun slate(builder: Slate.() -> Unit = {}): Slate {
-            return Slate().apply(builder)
+        inline fun slate(factory: () -> Slate = ::Slate, builder: Slate.() -> Unit = {}): Slate {
+            return factory.invoke().apply(builder)
         }
     }
 }

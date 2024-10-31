@@ -3,10 +3,13 @@ package net.mcbrawls.slate.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.mcbrawls.slate.Slate;
+import net.mcbrawls.slate.SlateListeners;
 import net.mcbrawls.slate.screen.SlateScreenHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
 import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket;
 import net.minecraft.screen.ScreenHandler;
@@ -37,14 +40,16 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         ScreenHandler screenHandler = this.player.currentScreenHandler;
         if (screenHandler instanceof SlateScreenHandler handler) {
             Slate slate = handler.getSlate();
-            if (!slate.getCanBeClosed()) {
+            if (!slate.getCanPlayerClose()) {
                 NetworkThreadUtils.forceMainThread(packet, that, this.player.getServerWorld());
 
-                // reopen for client
-                ScreenHandlerType<?> type = screenHandler.getType();
-                OpenScreenS2CPacket openPacket = new OpenScreenS2CPacket(screenHandler.syncId, type, slate.getTitle());
-                this.sendPacket(openPacket);
-                screenHandler.syncState();
+                if (slate.getCanBeClosed()) {
+                    // reopen for client
+                    ScreenHandlerType<?> type = screenHandler.getType();
+                    OpenScreenS2CPacket openPacket = new OpenScreenS2CPacket(screenHandler.syncId, type, slate.getTitle());
+                    this.sendPacket(openPacket);
+                    screenHandler.syncState();
+                }
 
                 return;
             }
@@ -60,5 +65,17 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             handler.onAnvilInput(input);
             handler.syncState();
         }
+    }
+
+    @Inject(method = "onHandSwing", at = @At("TAIL"))
+    private void handleHandSwing(HandSwingC2SPacket packet, CallbackInfo ci) {
+        ServerPlayerEntity player = this.player;
+        SlateListeners.INSTANCE.onSwing$slate(player, packet.getHand());
+    }
+
+    @Inject(method = "onPlayerInteractItem", at = @At("RETURN"))
+    private void handleClientItemUse(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
+        ServerPlayerEntity player = this.player;
+        SlateListeners.INSTANCE.onUse$slate(player, packet.getHand());
     }
 }

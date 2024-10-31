@@ -14,5 +14,9 @@
                 "adapter": "kotlin"
             }
         ]
+    },
+
+    "depends": {
+        "slate": "*"
     }
 }

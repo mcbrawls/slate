@@ -18,6 +18,14 @@
     "icon": "assets/slate/icon.png",
 
     "environment": "*",
+    "entrypoints": {
+        "main": [
+            {
+                "value": "net.mcbrawls.slate.SlateListeners",
+                "adapter": "kotlin"
+            }
+        ]
+    },
 
     "mixins": [
         "slate.mixins.json"

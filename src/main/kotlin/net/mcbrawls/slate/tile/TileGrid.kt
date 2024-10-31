@@ -3,6 +3,12 @@ package net.mcbrawls.slate.tile
 import net.minecraft.screen.ScreenHandlerType
 
 data class TileGrid(
+    /**
+     * The screen handler type sent to the client.
+     * Affects what the client sees and how it communicates back to the server.
+     */
+    val screenHandlerType: ScreenHandlerType<*>,
+
     val width: Int,
     val height: Int,
 ) {
@@ -97,7 +103,7 @@ data class TileGrid(
     }
 
     fun forEach(action: (Int, Tile?) -> Unit) {
-        tiles.forEachIndexed(action)
+        tiles.toList().forEachIndexed(action)
     }
 
     /**
@@ -138,7 +144,7 @@ data class TileGrid(
          * Creates a tile grid from the dimensions of the given screen handler type.
          */
         fun create(type: ScreenHandlerType<*>): TileGrid {
-            return TileGrid(type.width, type.height)
+            return TileGrid(type, type.width, type.height)
         }
 
         /**

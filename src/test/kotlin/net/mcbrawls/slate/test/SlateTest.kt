@@ -2,9 +2,12 @@ package net.mcbrawls.slate.test
 
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.UseItemCallback
+import net.mcbrawls.slate.InventorySlate
 import net.mcbrawls.slate.Slate.Companion.slate
 import net.mcbrawls.slate.SlatePlayer
+import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.tile.Tile.Companion.tile
+import net.mcbrawls.slate.tile.TileGrid
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.BundleContentsComponent
 import net.minecraft.item.ItemStack
@@ -18,6 +21,10 @@ import net.minecraft.util.math.random.Random
 class SlateTest : ModInitializer {
     override fun onInitialize() {
         UseItemCallback.EVENT.register { player, _, hand ->
+            if (player.currentScreenHandler != player.playerScreenHandler) {
+                return@register ActionResult.PASS
+            }
+
             val stack = player.getStackInHand(hand)
 
             if (stack.isOf(Items.STICK)) {
@@ -94,12 +101,59 @@ class SlateTest : ModInitializer {
                     }
 
                     // open subslate test
+                    tiles[centerX - 1, centerY + 1] = tile(ItemStack(Items.CHEST)) {
+                        tooltip(Text.literal("Open an inventory subslate"))
+
+                        onClick { _, _, context ->
+                            val subslate = subslate(::InventorySlate) {
+                                title = Text.literal("Inventory Subslate")
+
+                                for (i in 0 until tiles.size) {
+                                    tiles[i] = tile(ItemStack(Items.POPPED_CHORUS_FRUIT)) {
+                                        onClick(ClickType.LEFT) { _, _, _ ->
+                                            println("Inventory left click")
+                                        }
+
+                                        onClick(ClickType.RIGHT) { _, _, _ ->
+                                            println("Inventory right click")
+                                        }
+                                    }
+                                }
+
+                                tiles[tiles.lastIndex - 4] = tile(ItemStack(Items.ECHO_SHARD)) {
+                                    tooltip(Text.literal("Back (Reopen main slate)"))
+                                    onClick(ClickType.RIGHT) { slate, _, context ->
+                                        slate.openParent(context.player)
+                                    }
+                                }
+
+                                callbacks {
+                                    onOpen { _, _ ->
+                                        println("Opened inventory")
+                                    }
+
+                                    onTick { _, player ->
+                                        player.sendMessage(Text.literal("Ticking inventory GUI"), true)
+                                    }
+
+                                    onClose { _, _ ->
+                                        println("Closed inventory")
+                                        player.sendMessage(Text.empty(), true)
+                                    }
+                                }
+                            }
+
+                            subslate.open(context.player)
+                        }
+                    }
+
+                    // open subslate test
                     tiles[centerX + 1, centerY + 1] = tile(ItemStack(Items.ANVIL)) {
                         tooltip(Text.literal("Open an anvil subslate"))
 
                         onClick { _, _, context ->
                             val subslate = subslate {
-                                screenHandlerType = ScreenHandlerType.ANVIL
+                                tiles = TileGrid.create(ScreenHandlerType.ANVIL)
                                 title = Text.literal("Anvil Subslate")
 
                                 // on click open parent test

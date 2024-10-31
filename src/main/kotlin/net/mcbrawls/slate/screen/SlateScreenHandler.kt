@@ -16,8 +16,8 @@ import net.minecraft.screen.slot.Slot
 import net.minecraft.screen.slot.SlotActionType
 import net.minecraft.server.network.ServerPlayerEntity
 
-class SlateScreenHandler(
-    val slate: Slate,
+open class SlateScreenHandler<T : Slate>(
+    val slate: T,
     val player: PlayerEntity,
     type: ScreenHandlerType<*>,
     syncId: Int,
