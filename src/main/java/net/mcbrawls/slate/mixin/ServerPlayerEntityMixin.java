@@ -15,6 +15,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -71,5 +72,25 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sl
     @Override
     public boolean openSlate(Slate slate) {
         return slate.open((ServerPlayerEntity) (Object) this);
+    }
+
+    @Override
+    public @Nullable Slate getSlate() {
+        SlateScreenHandler<?> screenHandler = this.getSlateScreenHandler();
+        return screenHandler == null ? null : screenHandler.getSlate();
+    }
+
+    @Override
+    public @Nullable SlateScreenHandler<?> getSlateScreenHandler() {
+        if (this.currentScreenHandler instanceof SlateScreenHandler<?> handler) {
+            return handler;
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean hasSlateOpen() {
+        return this.getSlateScreenHandler() != null;
     }
 }
