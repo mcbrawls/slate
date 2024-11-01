@@ -2,16 +2,7 @@ package net.mcbrawls.slate.tile
 
 import net.minecraft.screen.ScreenHandlerType
 
-data class TileGrid(
-    /**
-     * The screen handler type sent to the client.
-     * Affects what the client sees and how it communicates back to the server.
-     */
-    val screenHandlerType: ScreenHandlerType<*>,
-
-    val width: Int,
-    val height: Int,
-) {
+open class TileGrid(val width: Int, val height: Int) {
     /**
      * The size of the slate WITHOUT the player's inventory.
      */
@@ -38,20 +29,17 @@ data class TileGrid(
     val hotbarStartIndex: Int get() = tiles.lastIndex - 8
 
     /**
-     * Whether this tile grid should be redrawn.
-     */
-    var dirty: Boolean = false
-
-    /**
      * Sets a slot tile at the given index.
      */
-    operator fun set(index: Int, tile: Tile?) {
+    operator fun set(index: Int, tile: Tile?): Boolean {
         assertSlotIndex(index)
 
         if (tile != tiles[index]) {
             tiles[index] = tile
-            dirty = true
+            return true
         }
+
+        return false
     }
 
     /**
@@ -166,8 +154,8 @@ data class TileGrid(
         /**
          * Creates a tile grid from the dimensions of the given screen handler type.
          */
-        fun create(type: ScreenHandlerType<*>): TileGrid {
-            return TileGrid(type, type.width, type.height)
+        fun create(type: ScreenHandlerType<*>): HandledTileGrid {
+            return HandledTileGrid(type)
         }
 
         /**

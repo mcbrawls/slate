@@ -1,13 +1,14 @@
 package net.mcbrawls.slate
 
 import net.mcbrawls.slate.screen.InventorySlateScreenHandler
+import net.mcbrawls.slate.tile.HandledTileGrid
 import net.mcbrawls.slate.tile.TileGrid
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 import java.util.OptionalInt
 
 class InventorySlate : Slate() {
-    override var tiles: TileGrid = TileGrid.create(ScreenHandlerType.GENERIC_9X1)
+    override var tiles: HandledTileGrid = TileGrid.create(ScreenHandlerType.GENERIC_9X1)
 
     override var canPlayerClose: Boolean = false
     override var canBeClosed: Boolean = false

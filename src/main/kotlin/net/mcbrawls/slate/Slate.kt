@@ -7,6 +7,7 @@ import net.mcbrawls.slate.callback.SlateTickCallback
 import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.mcbrawls.slate.screen.SlateScreenHandlerFactory
 import net.mcbrawls.slate.screen.slot.TileClickContext
+import net.mcbrawls.slate.tile.HandledTileGrid
 import net.mcbrawls.slate.tile.Tile
 import net.mcbrawls.slate.tile.TileGrid
 import net.minecraft.screen.ScreenHandlerType
@@ -27,7 +28,7 @@ open class Slate {
     /**
      * The base tile grid of this slate.
      */
-    open var tiles: TileGrid = TileGrid.create(ScreenHandlerType.GENERIC_9X6)
+    open var tiles: HandledTileGrid = TileGrid.create(ScreenHandlerType.GENERIC_9X6)
 
     /**
      * Handles all callbacks for this slate.
