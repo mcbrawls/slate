@@ -20,12 +20,8 @@ object SlateListeners : ModInitializer, UseItemCallback {
     }
 
     fun getSelectedSlotTile(slate: InventorySlate, player: PlayerEntity): Tile? {
-        val index = getSelectedSlotTileIndex(slate, player)
-        return slate[index]
-    }
-
-    fun getSelectedSlotTileIndex(slate: InventorySlate, player: PlayerEntity): Int {
-        return slate.hotbarStartIndex + player.inventory.selectedSlot + 1
+        val selectedSlot = player.inventory.selectedSlot
+        return slate.tiles.getHotbar(selectedSlot)
     }
 
     fun getClickModifiers(player: PlayerEntity): Collection<ClickModifier> {

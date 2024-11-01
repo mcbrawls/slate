@@ -9,8 +9,6 @@ import java.util.OptionalInt
 class InventorySlate : Slate() {
     override var tiles: TileGrid = TileGrid.create(ScreenHandlerType.GENERIC_9X1)
 
-    val hotbarStartIndex: Int get() = tiles.lastIndex - 9
-
     override var canPlayerClose: Boolean = false
     override var canBeClosed: Boolean = false
 

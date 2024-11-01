@@ -124,7 +124,7 @@ class SlateTest : ModInitializer {
                                     }
                                 }
 
-                                tiles[tiles.lastIndex - 4] = tile(ItemStack(Items.ECHO_SHARD)) {
+                                tiles.setHotbar(8, tile(ItemStack(Items.ECHO_SHARD)) {
                                     tooltip(Text.literal("Back (Reopen main slate)"))
 
                                     // TODO shortcut way of handling this?
@@ -145,7 +145,7 @@ class SlateTest : ModInitializer {
                                     onClick(ClickType.THROW) { _, _, context ->
                                         println(context)
                                     }
-                                }
+                                })
 
                                 callbacks {
                                     onOpen { _, _ ->
