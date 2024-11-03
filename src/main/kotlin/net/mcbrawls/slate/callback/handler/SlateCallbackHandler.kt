@@ -1,6 +1,11 @@
-package net.mcbrawls.slate.callback
+package net.mcbrawls.slate.callback.handler
 
 import net.mcbrawls.slate.Slate
+import net.mcbrawls.slate.callback.SlateCallback
+import net.mcbrawls.slate.callback.SlateCloseCallback
+import net.mcbrawls.slate.callback.SlateInputCallback
+import net.mcbrawls.slate.callback.SlateOpenCallback
+import net.mcbrawls.slate.callback.SlateTickCallback
 
 /**
  * Handles callbacks for instances of [Slate].

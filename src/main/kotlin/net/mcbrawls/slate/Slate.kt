@@ -1,9 +1,10 @@
 package net.mcbrawls.slate
 
-import net.mcbrawls.slate.callback.SlateCallbackHandler
+import net.mcbrawls.slate.callback.handler.SlateCallbackHandler
 import net.mcbrawls.slate.callback.SlateCloseCallback
 import net.mcbrawls.slate.callback.SlateOpenCallback
 import net.mcbrawls.slate.callback.SlateTickCallback
+import net.mcbrawls.slate.layer.SlateLayer
 import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.mcbrawls.slate.screen.SlateScreenHandlerFactory
 import net.mcbrawls.slate.screen.slot.TileClickContext
@@ -33,7 +34,7 @@ open class Slate {
     /**
      * Layers displayed on top of the base tile grid.
      */
-    val layers: MutableList<LayerData> = mutableListOf()
+    val layers: MutableList<LayerWithIndex> = mutableListOf()
 
     /**
      * Handles all callbacks for this slate.
@@ -71,6 +72,23 @@ open class Slate {
      */
     inline fun callbacks(factory: SlateCallbackHandler.() -> Unit) {
         callbackHandler = callbackHandler.apply(factory)
+    }
+
+    /**
+     * Adds a layer to this slate.
+     * @return the created layer
+     */
+    inline fun layer(
+        index: Int,
+        width: Int,
+        height: Int,
+        factory: SlateLayer.Factory = SlateLayer.Factory(::SlateLayer),
+        builder: SlateLayer.() -> Unit
+    ) : SlateLayer {
+        val layer = factory.create(width, height)
+        layer.apply(builder)
+        layers.add(LayerWithIndex(index, layer))
+        return layer
     }
 
     /**
@@ -125,6 +143,11 @@ open class Slate {
 
         // invoke callbacks
         callbackHandler.collectCallbacks<SlateTickCallback>().invoke(this, player)
+
+        // layer ticks
+        layers.forEach { indexedLayer ->
+            indexedLayer.layer.onTick(this, player)
+        }
     }
 
     internal fun onClosed(player: ServerPlayerEntity) {
@@ -220,6 +243,14 @@ open class Slate {
         return false
     }
 
+    /**
+     * Removes a layer from this slate.
+     * @return if the layer was removed
+     */
+    fun removeLayer(layer: SlateLayer): Boolean {
+        return layers.removeIf { it.layer == layer }
+    }
+
     override fun toString(): String {
         return "Slate{${tiles.screenHandlerType}:$title, $tiles}"
     }
@@ -227,7 +258,7 @@ open class Slate {
     /**
      * The stored data for an active layer.
      */
-    data class LayerData(
+    data class LayerWithIndex(
         val index: Int,
         val layer: SlateLayer,
     )

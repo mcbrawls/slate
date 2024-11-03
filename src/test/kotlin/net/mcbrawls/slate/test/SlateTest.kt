@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.mcbrawls.slate.InventorySlate
 import net.mcbrawls.slate.Slate
 import net.mcbrawls.slate.Slate.Companion.slate
-import net.mcbrawls.slate.SlateLayer
+import net.mcbrawls.slate.layer.SlateLayer
 import net.mcbrawls.slate.SlatePlayer
 import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.tile.Tile.Companion.tile
@@ -34,12 +34,26 @@ class SlateTest : ModInitializer {
                 val slate = slate {
                     title = Text.literal("Slate Innit")
 
-                    // TODO coordinates and avoid direct creation of LayerData!
-                    layers.add(Slate.LayerData(4, SlateLayer(3, 2).apply {
+                    layer(4, 3, 2) {
                         for (i in 0 until size) {
-                            tiles[i] = tile(ItemStack(Items.STONE))
+                            tiles[i] = tile(ItemStack(Items.STONE)) {
+                                tooltip(Text.literal("Layer tile at $i"))
+                            }
                         }
-                    }))
+
+                        callbacks {
+                            onTick { _, _, player ->
+                                if (player.age % 20 == 0) {
+                                    val maybeItemRef = Registries.ITEM.getRandom(Random.create())
+                                    maybeItemRef.ifPresent { ref ->
+                                        val item = ref.value()
+                                        val tile = tiles[0, 1]
+                                        tile?.stack = ItemStack(item)
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     tiles[0, 0] = tile()
                     tiles[1, 0] = tile(ItemStack(Items.WHITE_WOOL))
