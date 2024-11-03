@@ -11,32 +11,32 @@ open class TileGrid(val width: Int, val height: Int) {
     /**
      * A fixed-size array of all tiles stored in this grid.
      */
-    private val tiles: Array<Tile?> = arrayOfNulls(baseSize + INVENTORY_SIZE)
+    open val tiles: Array<Tile?> = arrayOfNulls(baseSize)
 
     /**
      * The total size of all tiles.
      */
-    val size: Int = tiles.size
+    val size: Int get() = tiles.size
 
     /**
      * The last available tile slot index.
      */
-    val lastIndex: Int = tiles.lastIndex
+    val lastIndex: Int get() = tiles.lastIndex
 
     /**
      * The start of the hotbar slot indexes.
      */
-    val hotbarStartIndex: Int get() = tiles.lastIndex - 8
+    val hotbarStartIndex: Int get() = lastIndex - 8
 
     /**
      * Sets a slot tile at the given index.
      */
     operator fun set(index: Int, tile: Tile?): Boolean {
-        assertSlotIndex(index)
-
-        if (tile != tiles[index]) {
-            tiles[index] = tile
-            return true
+        if (checkSlotIndex(index)) {
+            if (tile != tiles[index]) {
+                tiles[index] = tile
+                return true
+            }
         }
 
         return false
@@ -47,18 +47,7 @@ open class TileGrid(val width: Int, val height: Int) {
      * @return the calculated index
      */
     operator fun set(x: Int, y: Int, tile: Tile?): Int {
-        assertWidthMatchesInventory()
         val index = toIndex(x, y, width)
-        set(index, tile)
-        return index
-    }
-
-    /**
-     * Sets a slot tile from the given coordinates, within the player inventory space.
-     * @return the calculated index
-     */
-    fun setInventory(x: Int, y: Int, tile: Tile?): Int {
-        val index = toIndex(x, y, INVENTORY_WIDTH) + baseSize
         set(index, tile)
         return index
     }
@@ -84,16 +73,7 @@ open class TileGrid(val width: Int, val height: Int) {
      * Gets a slot tile from the given coordinates.
      */
     operator fun get(x: Int, y: Int): Tile? {
-        assertWidthMatchesInventory()
         val index = toIndex(x, y, width)
-        return this[index]
-    }
-
-    /**
-     * Gets a slot tile from the given coordinates.
-     */
-    fun getInventory(x: Int, y: Int): Tile? {
-        val index = toIndex(x, y, INVENTORY_WIDTH) + baseSize
         return this[index]
     }
 
@@ -108,9 +88,8 @@ open class TileGrid(val width: Int, val height: Int) {
     /**
      * Clears a slot tile from the given index.
      */
-    fun clear(index: Int) {
-        assertSlotIndex(index)
-        tiles[index] = null
+    fun clear(index: Int): Boolean {
+        return set(index, null)
     }
 
     fun forEach(action: (Int, Tile?) -> Unit) {
@@ -118,32 +97,13 @@ open class TileGrid(val width: Int, val height: Int) {
     }
 
     /**
-     * Asserts an index is within the slot size bounds.
-     * @throws IllegalArgumentException if the index if out of bounds
+     * Verifies that an index is within the slot size bounds.
      */
-    private fun assertSlotIndex(index: Int) {
-        if (index > lastIndex) {
-            throw IllegalArgumentException("Tile placed out of bounds: index $index, size $size")
-        }
-    }
-
-    /**
-     * Asserts that this tile grid's width matches the default player inventory width.
-     * Used to prevent usage of coordinates in non-matching tile grids.
-     *
-     * @throws IllegalStateException if the width does not match that of the player inventory
-     */
-    private fun assertWidthMatchesInventory() {
-        if (width != INVENTORY_WIDTH) {
-            throw IllegalStateException("Width is not consistent throughout tile grid")
-        }
+    private fun checkSlotIndex(index: Int): Boolean {
+        return index <= lastIndex
     }
 
     companion object {
-        const val INVENTORY_WIDTH = 9
-        const val INVENTORY_HEIGHT = 4
-        const val INVENTORY_SIZE = INVENTORY_WIDTH * INVENTORY_HEIGHT
-
         /**
          * Converts coordinates to a tile grid index.
          */

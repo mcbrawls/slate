@@ -31,6 +31,11 @@ open class Slate {
     open var tiles: HandledTileGrid = TileGrid.create(ScreenHandlerType.GENERIC_9X6)
 
     /**
+     * Layers displayed on top of the base tile grid.
+     */
+    val layers: MutableList<LayerData> = mutableListOf()
+
+    /**
      * Handles all callbacks for this slate.
      */
     open var callbackHandler: SlateCallbackHandler = SlateCallbackHandler()
@@ -78,7 +83,27 @@ open class Slate {
     }
 
     operator fun get(tileIndex: Int): Tile? {
-        return tiles[tileIndex]
+        val x = tileIndex % tiles.width
+        val y = tileIndex / tiles.width
+
+        val layerTile = layers
+            .asReversed()
+            .firstNotNullOfOrNull { (layerIndex, layer) ->
+                // convert global position to layer-local position
+                val layerStartX = layerIndex % tiles.width
+                val layerStartY = layerIndex / tiles.width
+                val layerX = x - layerStartX
+                val layerY = y - layerStartY
+
+                // check if the position is within layer bounds
+                if (layerX in 0 until layer.width && layerY in 0 until layer.height) {
+                    layer.tiles[layerY * layer.width + layerX]
+                } else {
+                    null
+                }
+            }
+
+        return layerTile ?: tiles[tileIndex]
     }
 
     internal fun onOpen(player: ServerPlayerEntity, handledSlate: HandledSlate<out Slate>) {
@@ -198,6 +223,14 @@ open class Slate {
     override fun toString(): String {
         return "Slate{${tiles.screenHandlerType}:$title, $tiles}"
     }
+
+    /**
+     * The stored data for an active layer.
+     */
+    data class LayerData(
+        val index: Int,
+        val layer: SlateLayer,
+    )
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(Slate::class.java)

@@ -3,7 +3,9 @@ package net.mcbrawls.slate.test
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.mcbrawls.slate.InventorySlate
+import net.mcbrawls.slate.Slate
 import net.mcbrawls.slate.Slate.Companion.slate
+import net.mcbrawls.slate.SlateLayer
 import net.mcbrawls.slate.SlatePlayer
 import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.tile.Tile.Companion.tile
@@ -31,6 +33,13 @@ class SlateTest : ModInitializer {
                 val slatePlayer = player as SlatePlayer
                 val slate = slate {
                     title = Text.literal("Slate Innit")
+
+                    // TODO coordinates and avoid direct creation of LayerData!
+                    layers.add(Slate.LayerData(4, SlateLayer(3, 2).apply {
+                        for (i in 0 until size) {
+                            tiles[i] = tile(ItemStack(Items.STONE))
+                        }
+                    }))
 
                     tiles[0, 0] = tile()
                     tiles[1, 0] = tile(ItemStack(Items.WHITE_WOOL))
