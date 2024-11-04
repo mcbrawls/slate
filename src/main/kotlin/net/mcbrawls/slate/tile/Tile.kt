@@ -17,7 +17,7 @@ import net.minecraft.util.Identifier
 /**
  * A slot within a slate.
  */
-open class Tile(var stack: ItemStack) {
+abstract class Tile {
     /**
      * The complete tooltip of the tile stack.
      * The first element is the name, and the rest is flushed to the tooltip.
@@ -66,10 +66,15 @@ open class Tile(var stack: ItemStack) {
     }
 
     /**
+     * The base item stack to be displayed.
+     */
+    abstract fun createBaseStack(): ItemStack
+
+    /**
      * Creates the final displayed stack for this tile.
      */
-    fun getDisplayedStack(): ItemStack {
-        val stack = stack.copy()
+    fun createDisplayedStack(): ItemStack {
+        val stack = createBaseStack()
 
         addTooltip(stack)
         addImmovable(stack)
@@ -113,8 +118,7 @@ open class Tile(var stack: ItemStack) {
     }
 
     override fun toString(): String {
-        val stackStr = stack.toString()
-        return "Tile{$stackStr}"
+        return "Tile"
     }
 
     companion object {
@@ -126,8 +130,8 @@ open class Tile(var stack: ItemStack) {
         /**
          * Builds a default tile.
          */
-        inline fun tile(stack: ItemStack = ItemStack.EMPTY, builder: Tile.() -> Unit = {}): Tile {
-            return Tile(stack).apply(builder)
+        inline fun tile(stack: ItemStack = ItemStack.EMPTY, builder: StackTile.() -> Unit = {}): StackTile {
+            return StackTile(stack).apply(builder)
         }
     }
 }

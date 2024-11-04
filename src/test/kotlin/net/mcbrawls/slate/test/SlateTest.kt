@@ -8,6 +8,7 @@ import net.mcbrawls.slate.Slate.Companion.slate
 import net.mcbrawls.slate.layer.SlateLayer
 import net.mcbrawls.slate.SlatePlayer
 import net.mcbrawls.slate.screen.slot.ClickType
+import net.mcbrawls.slate.tile.StackTile
 import net.mcbrawls.slate.tile.Tile.Companion.tile
 import net.mcbrawls.slate.tile.TileGrid
 import net.minecraft.component.DataComponentTypes
@@ -48,7 +49,9 @@ class SlateTest : ModInitializer {
                                     maybeItemRef.ifPresent { ref ->
                                         val item = ref.value()
                                         val tile = tiles[0, 1]
-                                        tile?.stack = ItemStack(item)
+                                        if (tile is StackTile) {
+                                            tile.stack = ItemStack(item)
+                                        }
                                     }
                                 }
                             }
@@ -245,7 +248,9 @@ class SlateTest : ModInitializer {
                                 maybeItemRef.ifPresent { ref ->
                                     val item = ref.value()
                                     val tile = slate.tiles[0, 0]
-                                    tile?.stack = ItemStack(item)
+                                    if (tile is StackTile) {
+                                        tile.stack = ItemStack(item)
+                                    }
                                 }
                             }
                         }
