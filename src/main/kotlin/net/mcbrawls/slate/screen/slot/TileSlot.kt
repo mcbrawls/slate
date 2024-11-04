@@ -1,21 +1,24 @@
 package net.mcbrawls.slate.screen.slot
 
-import net.mcbrawls.slate.Slate
 import net.mcbrawls.slate.screen.SlateInventory
+import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.slot.Slot
 import java.util.Optional
 
 class TileSlot(
-    val slate: Slate,
+    val handler: SlateScreenHandler<*>,
     tileIndex: Int,
     x: Int,
     y: Int
 ) : Slot(SlateInventory, tileIndex, x, y) {
     override fun getStack(): ItemStack {
+        val slate = handler.slate
+        val player = handler.player
+
         val tile = slate[index]
-        return tile?.createDisplayedStack() ?: ItemStack.EMPTY
+        return tile?.createDisplayedStack(player) ?: ItemStack.EMPTY
     }
 
     override fun takeStack(amount: Int): ItemStack {

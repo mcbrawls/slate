@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerFactory
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 
 class SlateScreenHandlerFactory(
@@ -25,7 +26,13 @@ class SlateScreenHandlerFactory(
          * Creates a custom screen handler factory out of the given slate.
          */
         fun create(slate: Slate): SlateScreenHandlerFactory {
-            return SlateScreenHandlerFactory(slate) { syncId, _, player -> SlateScreenHandler(slate, player, slate.screenHandlerType, syncId) }
+            return SlateScreenHandlerFactory(slate) { syncId, _, player ->
+                if (player !is ServerPlayerEntity) {
+                    null
+                } else {
+                    SlateScreenHandler(slate, player, slate.screenHandlerType, syncId)
+                }
+            }
         }
     }
 }

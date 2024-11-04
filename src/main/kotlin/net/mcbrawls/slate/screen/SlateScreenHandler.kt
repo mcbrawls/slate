@@ -18,7 +18,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 
 open class SlateScreenHandler<T : Slate>(
     val slate: T,
-    val player: PlayerEntity,
+    val player: ServerPlayerEntity,
     type: ScreenHandlerType<*>,
     syncId: Int,
 ) : ScreenHandler(type, syncId) {
@@ -29,28 +29,18 @@ open class SlateScreenHandler<T : Slate>(
     private fun drawSlots() {
         // send gui slots
         for (tileIndex in 0 until slate.size) {
-            val tile = slate[tileIndex]
-            if (tile != null) {
-                val slot = tile.createSlot(slate, tileIndex, 0, 0)
-                addSlot(slot)
-            } else {
-                addSlot(TileSlot(slate, tileIndex, 0, 0))
-            }
+            val slot = TileSlot(this, tileIndex, 0, 0)
+            addSlot(slot)
         }
     }
 
     fun onAnvilInput(input: String) {
-        if (player is ServerPlayerEntity) {
-            slate.onAnvilInput(player, input)
-        }
+        slate.onAnvilInput(player, input)
     }
 
     override fun sendContentUpdates() {
         super.sendContentUpdates()
-
-        if (player is ServerPlayerEntity) {
-            slate.onTick(player)
-        }
+        slate.onTick(player)
     }
 
     override fun onClosed(player: PlayerEntity) {
@@ -88,10 +78,8 @@ open class SlateScreenHandler<T : Slate>(
      * Updates the current offhand slot value on the client.
      */
     fun clearOffhandSlotClient() {
-        if (player is ServerPlayerEntity) {
-            val packet = ScreenHandlerSlotUpdateS2CPacket(0, revision, PlayerInventory.OFF_HAND_SLOT + 5, ItemStack.EMPTY)
-            player.networkHandler.sendPacket(packet)
-        }
+        val packet = ScreenHandlerSlotUpdateS2CPacket(0, revision, PlayerInventory.OFF_HAND_SLOT + 5, ItemStack.EMPTY)
+        player.networkHandler.sendPacket(packet)
     }
 
     /**
