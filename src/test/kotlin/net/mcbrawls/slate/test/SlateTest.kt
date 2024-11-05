@@ -3,9 +3,7 @@ package net.mcbrawls.slate.test
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.mcbrawls.slate.InventorySlate
-import net.mcbrawls.slate.Slate
 import net.mcbrawls.slate.Slate.Companion.slate
-import net.mcbrawls.slate.layer.SlateLayer
 import net.mcbrawls.slate.SlatePlayer
 import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.tile.StackTile
@@ -37,7 +35,7 @@ class SlateTest : ModInitializer {
 
                     layer(4, 3, 2) {
                         for (i in 0 until size) {
-                            tiles[i] = tile(ItemStack(Items.STONE)) {
+                            tiles[i] = tile(Items.STONE) {
                                 tooltip(Text.literal("Layer tile at $i"))
                             }
                         }
@@ -59,17 +57,17 @@ class SlateTest : ModInitializer {
                     }
 
                     tiles[0, 0] = tile()
-                    tiles[1, 0] = tile(ItemStack(Items.WHITE_WOOL))
+                    tiles[1, 0] = tile(Items.WHITE_WOOL)
 
                     // bound tests
-                    tiles.setInventory(0, 0, tile(ItemStack(Items.ORANGE_WOOL)))
-                    tiles[tiles.width - 1, 0] = tile(ItemStack(Items.RED_WOOL))
-                    tiles[0, tiles.height - 1] = tile(ItemStack(Items.RED_WOOL))
-                    tiles[tiles.lastIndex] = tile(ItemStack(Items.RED_WOOL))
+                    tiles.setInventory(0, 0, tile(Items.ORANGE_WOOL))
+                    tiles[tiles.width - 1, 0] = tile(Items.RED_WOOL)
+                    tiles[0, tiles.height - 1] = tile(Items.RED_WOOL)
+                    tiles[tiles.lastIndex] = tile(Items.RED_WOOL)
 
                     // center and log tests
                     val (centerX, centerY) = tiles.width / 2 to tiles.height / 2
-                    tiles[centerX, centerY] = tile(ItemStack(Items.SAND)) {
+                    tiles[centerX, centerY] = tile(Items.SAND) {
                         tooltip(Text.literal("Click me!"))
 
                         onClick { slate, tile, context ->
@@ -104,10 +102,10 @@ class SlateTest : ModInitializer {
                             val subslate = subslate {
                                 title = Text.literal("Subslate")
 
-                                tiles[0, 7] = tile(ItemStack(Items.WOODEN_HOE))
+                                tiles[0, 7] = tile(Items.WOODEN_HOE)
 
                                 // on click open parent test
-                                tiles[0, 8] = tile(ItemStack(Items.ARROW)) {
+                                tiles[0, 8] = tile(Items.ARROW) {
                                     tooltip(Text.literal("Back (Open this slate's parent)"))
                                     onClick { slate, _, context ->
                                         // open parent slate
@@ -131,7 +129,7 @@ class SlateTest : ModInitializer {
                     }
 
                     // open subslate test
-                    tiles[centerX - 1, centerY + 1] = tile(ItemStack(Items.CHEST)) {
+                    tiles[centerX - 1, centerY + 1] = tile(Items.CHEST) {
                         tooltip(Text.literal("Open an inventory subslate"))
 
                         onClick { _, _, context ->
@@ -139,7 +137,7 @@ class SlateTest : ModInitializer {
                                 title = Text.literal("Inventory Subslate")
 
                                 for (i in 0 until tiles.size) {
-                                    tiles[i] = tile(ItemStack(Items.POPPED_CHORUS_FRUIT)) {
+                                    tiles[i] = tile(Items.POPPED_CHORUS_FRUIT) {
                                         onClick(ClickType.LEFT) { _, _, _ ->
                                             println("Inventory left click")
                                         }
@@ -150,7 +148,7 @@ class SlateTest : ModInitializer {
                                     }
                                 }
 
-                                tiles.setHotbar(8, tile(ItemStack(Items.ECHO_SHARD)) {
+                                tiles.setHotbar(8, tile(Items.ECHO_SHARD) {
                                     tooltip(Text.literal("Back (Reopen main slate)"))
 
                                     // TODO shortcut way of handling this?
@@ -194,7 +192,7 @@ class SlateTest : ModInitializer {
                     }
 
                     // open subslate test
-                    tiles[centerX + 1, centerY + 1] = tile(ItemStack(Items.ANVIL)) {
+                    tiles[centerX + 1, centerY + 1] = tile(Items.ANVIL) {
                         tooltip(Text.literal("Open an anvil subslate"))
 
                         onClick { _, _, context ->
@@ -203,7 +201,7 @@ class SlateTest : ModInitializer {
                                 title = Text.literal("Anvil Subslate")
 
                                 // on click open parent test
-                                tiles[0] = tile(ItemStack(Items.ARROW)) {
+                                tiles[0] = tile(Items.ARROW) {
                                     tooltip(Text.literal("Back (Open this slate's parent)"))
                                     onClick { slate, _, context ->
                                         // open parent slate
@@ -212,8 +210,8 @@ class SlateTest : ModInitializer {
                                 }
 
                                 // bounds tests
-                                tiles.setInventory(0, 0, tile(ItemStack(Items.ORANGE_WOOL)))
-                                tiles[tiles.lastIndex] = tile(ItemStack(Items.RED_WOOL))
+                                tiles.setInventory(0, 0, tile(Items.ORANGE_WOOL))
+                                tiles[tiles.lastIndex] = tile(Items.RED_WOOL)
 
                                 callbacks {
                                     onInput { _, _, input ->
@@ -227,7 +225,7 @@ class SlateTest : ModInitializer {
                     }
 
                     // on click close test
-                    tiles[centerX, centerY + 2] = tile(ItemStack(Items.ARROW)) {
+                    tiles[centerX, centerY + 2] = tile(Items.ARROW) {
                         tooltip(Text.literal("Exit this slate"))
                         onClick { slate, _, context ->
                             slate.close(context.player)

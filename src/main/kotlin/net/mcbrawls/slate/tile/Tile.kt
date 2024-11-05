@@ -5,6 +5,7 @@ import net.mcbrawls.slate.screen.slot.ClickType
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.LoreComponent
 import net.minecraft.component.type.NbtComponent
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
@@ -120,10 +121,24 @@ abstract class Tile {
         val IMMOVABLE_TAG: String = Identifier.of(NOXESIUM_NAMESPACE, "immovable").toString()
 
         /**
-         * Builds a default tile.
+         * Builds a defaulted tile with an item stack.
          */
         inline fun tile(stack: ItemStack = ItemStack.EMPTY, builder: StackTile.() -> Unit = {}): StackTile {
-            return StackTile(stack).apply(builder)
+            return tile({ StackTile(stack) }, builder)
+        }
+
+        /**
+         * Builds a defaulted tile with an item.
+         */
+        inline fun tile(item: Item, builder: StackTile.() -> Unit = {}): StackTile {
+            return tile(ItemStack(item), builder)
+        }
+
+        /**
+         * Builds a tile.
+         */
+        inline fun <T : Tile> tile(factory: () -> T, builder: T.() -> Unit = {}): T {
+            return factory.invoke().apply(builder)
         }
     }
 }
