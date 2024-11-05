@@ -1,9 +1,9 @@
 package net.mcbrawls.slate
 
-import net.mcbrawls.slate.callback.handler.SlateCallbackHandler
 import net.mcbrawls.slate.callback.SlateCloseCallback
 import net.mcbrawls.slate.callback.SlateOpenCallback
 import net.mcbrawls.slate.callback.SlateTickCallback
+import net.mcbrawls.slate.callback.handler.SlateCallbackHandler
 import net.mcbrawls.slate.layer.SlateLayer
 import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.mcbrawls.slate.screen.SlateScreenHandlerFactory
@@ -21,6 +21,11 @@ import java.util.OptionalInt
 typealias MinecraftUnit = net.minecraft.util.Unit
 
 open class Slate {
+    /**
+     * An identifiable key for this slate. Use how you wish.
+     */
+    open var key: String? = null
+
     /**
      * The title of the screen handler.
      */
@@ -271,6 +276,13 @@ open class Slate {
          */
         inline fun slate(factory: () -> Slate = ::Slate, builder: Slate.() -> Unit = {}): Slate {
             return factory.invoke().apply(builder)
+        }
+
+        /**
+         * Checks if this slate (nullable) has the checked key.
+         */
+        fun Slate?.hasKey(checkedKey: String): Boolean {
+            return this != null && key == checkedKey
         }
     }
 }
