@@ -9,6 +9,7 @@ import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.tile.StackTile
 import net.mcbrawls.slate.tile.Tile.Companion.tile
 import net.mcbrawls.slate.tile.TileGrid
+import net.mcbrawls.slate.tooltip.TooltipChunk.Companion.tooltipChunk
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.BundleContentsComponent
 import net.minecraft.item.ItemStack
@@ -17,6 +18,7 @@ import net.minecraft.registry.Registries
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
+import net.minecraft.util.Formatting
 import net.minecraft.util.math.random.Random
 
 class SlateTest : ModInitializer {
@@ -193,7 +195,27 @@ class SlateTest : ModInitializer {
 
                     // open subslate test
                     tiles[centerX + 1, centerY + 1] = tile(Items.ANVIL) {
-                        tooltip(Text.literal("Open an anvil subslate"))
+                        tooltip("This tile:")
+
+                        tooltip(
+                            tooltipChunk("Open an anvil subslate"),
+                            tooltipChunk(
+                                "Hello",
+                                "These are tooltips"
+                            ) {
+                                styled {
+                                    withFormatting(Formatting.GREEN)
+                                }
+                            },
+                            tooltipChunk(
+                                "Hello Again!",
+                                "These are more tooltips"
+                            ) {
+                                styled {
+                                    withFormatting(Formatting.RED)
+                                }
+                            },
+                        )
 
                         onClick { _, _, context ->
                             val subslate = subslate {

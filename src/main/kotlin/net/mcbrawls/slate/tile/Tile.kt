@@ -2,6 +2,7 @@ package net.mcbrawls.slate.tile
 
 import net.mcbrawls.slate.MinecraftUnit
 import net.mcbrawls.slate.screen.slot.ClickType
+import net.mcbrawls.slate.tooltip.TooltipChunk
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.LoreComponent
 import net.minecraft.component.type.NbtComponent
@@ -9,7 +10,6 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
@@ -37,6 +37,31 @@ abstract class Tile {
      */
     fun tooltip(vararg tooltips: Text) {
         tooltip.addAll(tooltips)
+    }
+
+    /**
+     * Adds tooltips to this tile.
+     */
+    fun tooltip(vararg tooltips: String) {
+        tooltip.addAll(tooltips.map(Text::literal))
+    }
+
+    /**
+     * Adds tooltip chunks to this tile.
+     */
+    fun tooltip(vararg chunks: TooltipChunk) {
+        val lastIndex = chunks.lastIndex
+        chunks.forEachIndexed { index, chunk ->
+            // append chunk
+            chunk.texts.forEach { text ->
+                tooltip.add(text.copy().fillStyle(chunk.style))
+            }
+
+            // append break
+            if (index != lastIndex) {
+                tooltip.add(Text.empty())
+            }
+        }
     }
 
     /**
@@ -86,13 +111,22 @@ abstract class Tile {
 
             if (tooltip.isNotEmpty()) {
                 tooltip.forEach { text ->
-                    text.fillStyle(Style.EMPTY.withFormatting(Formatting.RESET))
+                    text.styled { style ->
+                        var finalStyle = style
+
+                        if (finalStyle.color == null) {
+                            finalStyle = finalStyle.withColor(Formatting.WHITE)
+                        }
+
+                        if (finalStyle.italic == null) {
+                            finalStyle = finalStyle.withItalic(false)
+                        }
+
+                        finalStyle
+                    }
                 }
 
-                stack.set(
-                    DataComponentTypes.LORE,
-                    LoreComponent(tooltip.toList())
-                )
+                stack.set(DataComponentTypes.LORE, LoreComponent(tooltip.toList()))
             }
         }
     }
