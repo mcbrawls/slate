@@ -1,5 +1,6 @@
 package net.mcbrawls.slate.tile
 
+import net.mcbrawls.slate.Slate
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
@@ -7,7 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 class StackTile(var stack: ItemStack) : Tile() {
     constructor(item: Item) : this(ItemStack(item))
 
-    override fun createBaseStack(player: ServerPlayerEntity): ItemStack {
+    override fun createBaseStack(slate: Slate, player: ServerPlayerEntity): ItemStack {
         return stack
     }
 

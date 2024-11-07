@@ -1,6 +1,7 @@
 package net.mcbrawls.slate.tile
 
 import net.mcbrawls.slate.MinecraftUnit
+import net.mcbrawls.slate.Slate
 import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.tooltip.TooltipChunk
 import net.minecraft.component.DataComponentTypes
@@ -86,13 +87,13 @@ abstract class Tile {
     /**
      * The base item stack to be displayed.
      */
-    abstract fun createBaseStack(player: ServerPlayerEntity): ItemStack
+    abstract fun createBaseStack(slate: Slate, player: ServerPlayerEntity): ItemStack
 
     /**
      * Creates the final displayed stack for this tile.
      */
-    fun createDisplayedStack(player: ServerPlayerEntity): ItemStack {
-        val stack = createBaseStack(player)
+    fun createDisplayedStack(slate: Slate, player: ServerPlayerEntity): ItemStack {
+        val stack = createBaseStack(slate, player)
 
         addTooltip(stack)
         addImmovable(stack)

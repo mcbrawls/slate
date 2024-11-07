@@ -18,7 +18,7 @@ class TileSlot(
         val player = handler.player
 
         val tile = slate[index]
-        return tile?.createDisplayedStack(player) ?: ItemStack.EMPTY
+        return tile?.createDisplayedStack(slate, player) ?: ItemStack.EMPTY
     }
 
     override fun takeStack(amount: Int): ItemStack {
