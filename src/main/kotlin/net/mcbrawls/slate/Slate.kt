@@ -80,6 +80,13 @@ open class Slate {
     }
 
     /**
+     * Modifies the tile grid on this slate.
+     */
+    inline fun tiles(action: HandledTileGrid.() -> Unit) {
+        action.invoke(tiles)
+    }
+
+    /**
      * Adds a layer to this slate.
      * @return the created layer
      */
