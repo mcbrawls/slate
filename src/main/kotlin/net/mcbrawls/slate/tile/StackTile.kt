@@ -5,7 +5,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
 
-class StackTile(var stack: ItemStack) : Tile() {
+class StackTile(var stack: ItemStack = ItemStack.EMPTY) : Tile() {
     constructor(item: Item) : this(ItemStack(item))
 
     override fun createBaseStack(slate: Slate, player: ServerPlayerEntity): ItemStack {
@@ -15,5 +15,9 @@ class StackTile(var stack: ItemStack) : Tile() {
     override fun toString(): String {
         val stackStr = stack.toString()
         return "StackTile{$stackStr}"
+    }
+
+    companion object {
+        val EMPTY = StackTile()
     }
 }

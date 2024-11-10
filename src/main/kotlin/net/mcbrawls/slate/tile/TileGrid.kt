@@ -99,6 +99,13 @@ open class TileGrid(val width: Int, val height: Int) {
     }
 
     /**
+     * Clears all tile slots.
+     */
+    fun clear() {
+        return tiles.fill(null)
+    }
+
+    /**
      * Sets a redirect on this tile grid.
      */
     fun redirect(index: Int, otherIndex: Int) {
