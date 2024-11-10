@@ -4,6 +4,7 @@ import net.mcbrawls.slate.callback.SlateCloseCallback
 import net.mcbrawls.slate.callback.SlateOpenCallback
 import net.mcbrawls.slate.callback.SlateTickCallback
 import net.mcbrawls.slate.callback.handler.SlateCallbackHandler
+import net.mcbrawls.slate.layer.PagedSlateLayer
 import net.mcbrawls.slate.layer.SlateLayer
 import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.mcbrawls.slate.screen.SlateScreenHandlerFactory
@@ -100,6 +101,30 @@ open class Slate {
         val layer = factory.create(width, height)
         layer.apply(builder)
         layers.add(LayerWithIndex(index, layer))
+        return layer
+    }
+
+    /**
+     * Adds a paged layer to this slate.
+     * @return the created layer
+     */
+    inline fun pagedLayer(
+        index: Int,
+        width: Int,
+        height: Int,
+        maxCount: Int,
+        crossinline slotFactory: (Int) -> Tile?,
+        builder: SlateLayer.() -> Unit
+    ) : PagedSlateLayer {
+        val layer = object : PagedSlateLayer(maxCount, width, height) {
+            override fun createTile(index: Int): Tile? {
+                return slotFactory.invoke(index)
+            }
+        }
+
+        layer.apply(builder)
+        layers.add(LayerWithIndex(index, layer))
+
         return layer
     }
 
