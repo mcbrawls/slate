@@ -189,16 +189,18 @@ open class Slate {
     }
 
     internal fun onClosed(player: ServerPlayerEntity) {
-        // invoke callbacks
-        callbackHandler.collectCallbacks<SlateCloseCallback>().invoke(this, player)
+        if (handledSlate != null) {
+            // invoke callbacks
+            callbackHandler.collectCallbacks<SlateCloseCallback>().invoke(this, player)
 
-        parent?.also { parent ->
-            parent.callbackHandler.collectCallbacks<ChildSlateCloseCallback>().invoke(this, player)
+            parent?.also { parent ->
+                parent.callbackHandler.collectCallbacks<ChildSlateCloseCallback>().invoke(this, player)
+            }
+
+            // clean up
+            player.currentScreenHandler.syncState()
+            handledSlate = null
         }
-
-        // clean up
-        player.currentScreenHandler.syncState()
-        handledSlate = null
     }
 
     /**
