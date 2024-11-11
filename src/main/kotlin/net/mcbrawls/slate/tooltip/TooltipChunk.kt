@@ -10,7 +10,7 @@ class TooltipChunk(
     /**
      * The texts to be displayed as part of this chunk.
      */
-    val texts: List<Text>
+    val texts: MutableList<Text> = mutableListOf()
 ) {
     /**
      * A style displayed over all texts in this chunk.
@@ -28,9 +28,16 @@ class TooltipChunk(
         /**
          * Builds a tooltip chunk.
          */
+        inline fun tooltipChunk(builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
+            return TooltipChunk().apply(builder)
+        }
+
+        /**
+         * Builds a tooltip chunk.
+         */
         @JvmName("tooltipChunkText")
         inline fun tooltipChunk(texts: Collection<Text>, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
-            return TooltipChunk(texts.toList()).apply(builder)
+            return TooltipChunk(texts.toMutableList()).apply(builder)
         }
 
         /**
