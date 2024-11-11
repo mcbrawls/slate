@@ -91,6 +91,13 @@ abstract class Tile {
     }
 
     /**
+     * Builds a chunked tooltip.
+     */
+    inline fun tooltipChunked(builder: MutableList<TooltipChunk>.() -> Unit) {
+        tooltip(mutableListOf<TooltipChunk>().apply(builder))
+    }
+
+    /**
      * Adds a click callback for the given click type.
      */
     fun onClick(clickType: ClickType = ClickType.LEFT, callback: TileClickCallback) {
