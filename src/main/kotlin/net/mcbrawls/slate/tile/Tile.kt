@@ -32,7 +32,7 @@ open class Tile {
      */
     var immovable: Boolean = true
 
-    private val clickCallbacks: MutableList<Pair<ClickType, TileClickCallback>> = mutableListOf()
+    val clickCallbacks: MutableList<Pair<ClickType, TileClickCallback>> = mutableListOf()
 
     /**
      * Adds tooltips to this tile.
@@ -114,18 +114,6 @@ open class Tile {
     }
 
     /**
-     * Combines all callbacks for the given click type into one callable object.
-     */
-    fun collectClickCallbacks(clickType: ClickType): TileClickCallback {
-        return TileClickCallback { slate, tile, context ->
-            clickCallbacks
-                .filter { it.first == clickType }
-                .map { it.second }
-                .forEach { callback -> callback.onClick(slate, tile, context) }
-        }
-    }
-
-    /**
      * The base item stack to be displayed.
      */
     open fun createBaseStack(slate: Slate, player: ServerPlayerEntity): ItemStack {
@@ -185,6 +173,18 @@ open class Tile {
             nbt.put(BUKKIT_COMPOUND_ID, bukkitNbt)
 
             stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt))
+        }
+    }
+
+    /**
+     * Combines all callbacks for the given click type into one callable object.
+     */
+    internal open fun collectClickCallbacks(clickType: ClickType): TileClickCallback {
+        return TileClickCallback { slate, tile, context ->
+            clickCallbacks
+                .filter { it.first == clickType }
+                .map { it.second }
+                .forEach { callback -> callback.onClick(slate, tile, context) }
         }
     }
 
