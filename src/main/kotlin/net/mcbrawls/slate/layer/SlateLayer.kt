@@ -27,6 +27,13 @@ open class SlateLayer(
         callbackHandler = callbackHandler.apply(factory)
     }
 
+    /**
+     * Modifies the tile grid on this layer.
+     */
+    inline fun tiles(action: TileGrid.() -> Unit) {
+        action.invoke(tiles)
+    }
+
     internal fun onTick(slate: Slate, player: ServerPlayerEntity) {
         // invoke callbacks
         callbackHandler.collectCallbacks<SlateLayerTickCallback>().invoke(slate, this, player)
