@@ -35,6 +35,9 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sl
     @Unique
     private boolean ignoreNextClosePacket = false;
 
+    @Unique
+    private Slate soonSlate = null;
+
     private ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(world, pos, yaw, gameProfile);
     }
@@ -69,6 +72,18 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sl
         }
     }
 
+    @Inject(method = "playerTick", at = @At("TAIL"))
+    private void onTickEnd(CallbackInfo ci) {
+        if (this.soonSlate != null) {
+            if (!hasSlateOpen()) {
+                ServerPlayerEntity that = (ServerPlayerEntity) (Object) this;
+                this.soonSlate.open(that);
+            }
+
+            this.soonSlate = null;
+        }
+    }
+
     @Override
     public boolean openSlate(Slate slate) {
         return slate.open((ServerPlayerEntity) (Object) this);
@@ -90,7 +105,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sl
     }
 
     @Override
-    public boolean hasSlateOpen() {
-        return this.getSlateScreenHandler() != null;
+    public void setSoonSlate(Slate slate) {
+        this.soonSlate = slate;
     }
 }

@@ -237,7 +237,7 @@ class SlateTest : ModInitializer {
 
                                 callbacks {
                                     onInput { _, _, input ->
-                                        println(input)
+                                        println("Input: $input")
                                     }
                                 }
                             }
@@ -279,8 +279,11 @@ class SlateTest : ModInitializer {
                             println("Closed")
                         }
 
-                        onChildClose { slate, player ->
-                            println("Child closed: $slate")
+                        onChildClose { childSlate, player ->
+                            println("Child closed: $childSlate")
+
+                            // ensure that the parent is always opened
+                            openSoon(player)
                         }
                     }
                 }

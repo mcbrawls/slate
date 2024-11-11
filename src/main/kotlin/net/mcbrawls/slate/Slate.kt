@@ -226,11 +226,11 @@ open class Slate {
      * @return whether the slate was opened successfully
      */
     open fun open(player: ServerPlayerEntity): Boolean {
-        handledSlate?.also { handledSlate ->
-            if (player != handledSlate.player) {
-                logger.warn("Tried to reopen already opened slate for different player: $this, $handledSlate")
+        if (handledSlate != null) {
+            if (player != handledSlate?.player) {
+                logger.debug("Tried to reopen already opened slate for different player: {}, {}", this, handledSlate)
             } else {
-                logger.warn("Tried to reopen already opened slate: $this, $handledSlate")
+                logger.debug("Tried to reopen already opened slate: {}, {}", this, handledSlate)
             }
 
             return false
@@ -254,6 +254,20 @@ open class Slate {
         }
 
         return false
+    }
+
+    /**
+     * Opens this slate at the end of the current tick.
+     */
+    fun openSoon(player: ServerPlayerEntity): Boolean {
+        if (handledSlate != null) {
+            return false
+        }
+
+        val slatePlayer = player as SlatePlayer
+        slatePlayer.setSoonSlate(this)
+
+        return true
     }
 
     /**

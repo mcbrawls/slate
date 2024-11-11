@@ -19,6 +19,10 @@ public interface SlatePlayer {
     }
 
     default boolean hasSlateOpen() {
+        return this.getSlateScreenHandler() != null;
+    }
+
+    default void setSoonSlate(Slate slate) {
         throw new AssertionError();
     }
 }
