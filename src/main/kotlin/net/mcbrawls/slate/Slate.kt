@@ -138,6 +138,14 @@ open class Slate {
         return slate.apply(builder)
     }
 
+    /**
+     * Modifies the given slate to be a subslate of this slate.
+     */
+    fun subslate(slate: Slate): Slate {
+        slate.parent = this
+        return slate
+    }
+
     operator fun get(tileIndex: Int): Tile? {
         val x = tileIndex % tiles.width
         val y = tileIndex / tiles.width

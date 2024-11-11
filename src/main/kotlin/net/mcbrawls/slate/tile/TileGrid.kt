@@ -16,7 +16,7 @@ open class TileGrid(val width: Int, val height: Int) {
     /**
      * Redirects a tile index to another tile index.
      */
-    val redirects: MutableMap<Int, Int> = mutableMapOf()
+    val redirects: MutableMap<Int, Pair<Int, RedirectType>> = mutableMapOf()
 
     /**
      * The total size of all tiles.
@@ -71,8 +71,13 @@ open class TileGrid(val width: Int, val height: Int) {
      * Gets a slot tile from the given index.
      */
     operator fun get(index: Int): Tile? {
-        val trueIndex = redirects[index] ?: index
-        return tiles.getOrNull(trueIndex)
+        redirects[index]?.also { (trueIndex, type) ->
+            tiles.getOrNull(trueIndex)?.also { tile ->
+                return RedirectedTile(tile, type)
+            }
+        }
+
+        return tiles.getOrNull(index)
     }
 
     /**
@@ -108,8 +113,8 @@ open class TileGrid(val width: Int, val height: Int) {
     /**
      * Sets a redirect on this tile grid.
      */
-    fun redirect(index: Int, otherIndex: Int) {
-        redirects[index] = otherIndex
+    fun redirect(index: Int, otherIndex: Int, type: RedirectType = RedirectType.NORMAL) {
+        redirects[index] = otherIndex to type
     }
 
     fun forEach(action: (Int, Tile?) -> Unit) {

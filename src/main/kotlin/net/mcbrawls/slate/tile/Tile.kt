@@ -19,7 +19,7 @@ import net.minecraft.util.Identifier
 /**
  * A slot within a slate.
  */
-abstract class Tile {
+open class Tile {
     /**
      * The complete tooltip of the tile stack.
      * The first element is the name, and the rest is flushed to the tooltip.
@@ -128,7 +128,9 @@ abstract class Tile {
     /**
      * The base item stack to be displayed.
      */
-    abstract fun createBaseStack(slate: Slate, player: ServerPlayerEntity): ItemStack
+    open fun createBaseStack(slate: Slate, player: ServerPlayerEntity): ItemStack {
+        return ItemStack.EMPTY
+    }
 
     /**
      * Creates the final displayed stack for this tile.
