@@ -28,15 +28,29 @@ class TooltipChunk(
         /**
          * Builds a tooltip chunk.
          */
+        inline fun tooltipChunk(texts: List<Text>, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
+            return TooltipChunk(texts).apply(builder)
+        }
+
+        /**
+         * Builds a tooltip chunk.
+         */
         inline fun tooltipChunk(vararg texts: Text, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
-            return TooltipChunk(texts.asList()).apply(builder)
+            return tooltipChunk(texts.toList(), builder)
+        }
+
+        /**
+         * Builds a tooltip chunk.
+         */
+        inline fun tooltipChunk(texts: List<String>, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
+            return TooltipChunk(texts.map(Text::literal)).apply(builder)
         }
 
         /**
          * Builds a tooltip chunk.
          */
         inline fun tooltipChunk(vararg texts: String, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
-            return TooltipChunk(texts.map(Text::literal)).apply(builder)
+            return tooltipChunk(texts.toList(), builder)
         }
     }
 }
