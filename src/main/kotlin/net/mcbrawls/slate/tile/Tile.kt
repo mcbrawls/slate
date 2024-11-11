@@ -2,6 +2,7 @@ package net.mcbrawls.slate.tile
 
 import net.mcbrawls.slate.MinecraftUnit
 import net.mcbrawls.slate.Slate
+import net.mcbrawls.slate.screen.slot.ClickModifier
 import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.tooltip.TooltipChunk
 import net.minecraft.component.DataComponentTypes
@@ -77,13 +78,13 @@ abstract class Tile {
      */
     fun onGenericClick(callback: TileClickCallback) {
         onClick(ClickType.LEFT) { slate, tile, context ->
-            if (context.withinScreen) {
+            if (context.withinScreen && !context.modifiers.contains(ClickModifier.DOUBLE)) {
                 callback.onClick(slate, tile, context)
             }
         }
 
         onClick(ClickType.RIGHT) { slate, tile, context ->
-            if (!context.withinScreen) {
+            if (!context.withinScreen && !context.modifiers.contains(ClickModifier.DOUBLE)) {
                 callback.onClick(slate, tile, context)
             }
         }
