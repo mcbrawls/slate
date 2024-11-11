@@ -278,6 +278,10 @@ class SlateTest : ModInitializer {
                         onClose { slate, player ->
                             println("Closed")
                         }
+
+                        onChildClose { slate, player ->
+                            println("Child closed: $slate")
+                        }
                     }
                 }
 

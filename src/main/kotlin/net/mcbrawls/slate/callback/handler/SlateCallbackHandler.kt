@@ -1,6 +1,7 @@
 package net.mcbrawls.slate.callback.handler
 
 import net.mcbrawls.slate.Slate
+import net.mcbrawls.slate.callback.ChildSlateCloseCallback
 import net.mcbrawls.slate.callback.SlateCallback
 import net.mcbrawls.slate.callback.SlateCloseCallback
 import net.mcbrawls.slate.callback.SlateInputCallback
@@ -32,6 +33,13 @@ open class SlateCallbackHandler {
      * Adds a callback invoked when the slate is closed.
      */
     fun onClose(callback: SlateCloseCallback) {
+        callbacks.add(callback)
+    }
+
+    /**
+     * Adds a callback invoked when any child slates are closed.
+     */
+    fun onChildClose(callback: ChildSlateCloseCallback) {
         callbacks.add(callback)
     }
 

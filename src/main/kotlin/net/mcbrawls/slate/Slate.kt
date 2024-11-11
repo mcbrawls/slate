@@ -1,5 +1,6 @@
 package net.mcbrawls.slate
 
+import net.mcbrawls.slate.callback.ChildSlateCloseCallback
 import net.mcbrawls.slate.callback.SlateCloseCallback
 import net.mcbrawls.slate.callback.SlateOpenCallback
 import net.mcbrawls.slate.callback.SlateTickCallback
@@ -190,6 +191,10 @@ open class Slate {
     internal fun onClosed(player: ServerPlayerEntity) {
         // invoke callbacks
         callbackHandler.collectCallbacks<SlateCloseCallback>().invoke(this, player)
+
+        parent?.also { parent ->
+            parent.callbackHandler.collectCallbacks<ChildSlateCloseCallback>().invoke(this, player)
+        }
 
         // clean up
         player.currentScreenHandler.syncState()
