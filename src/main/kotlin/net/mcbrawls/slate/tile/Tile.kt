@@ -109,7 +109,7 @@ abstract class Tile {
     /**
      * Creates the final displayed stack for this tile.
      */
-    fun createDisplayedStack(slate: Slate, player: ServerPlayerEntity): ItemStack {
+    open fun createDisplayedStack(slate: Slate, player: ServerPlayerEntity): ItemStack {
         val stack = createBaseStack(slate, player)
 
         addTooltip(stack)
