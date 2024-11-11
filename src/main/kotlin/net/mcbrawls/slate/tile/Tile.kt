@@ -38,7 +38,7 @@ abstract class Tile {
      * Adds tooltips to this tile.
      */
     @JvmName("tooltipText")
-    fun tooltip(tooltips: List<Text>) {
+    fun tooltip(tooltips: Collection<Text>) {
         tooltip.addAll(tooltips)
     }
 
@@ -53,7 +53,7 @@ abstract class Tile {
      * Adds tooltips to this tile.
      */
     @JvmName("tooltipString")
-    fun tooltip(tooltips: List<String>) {
+    fun tooltip(tooltips: Collection<String>) {
         tooltip.addAll(tooltips.map(Text::literal))
     }
 
@@ -67,7 +67,8 @@ abstract class Tile {
     /**
      * Adds tooltip chunks to this tile.
      */
-    fun tooltip(vararg chunks: TooltipChunk) {
+    @JvmName("tooltipTooltipChunk")
+    fun tooltip(chunks: List<TooltipChunk>) {
         val lastIndex = chunks.lastIndex
         chunks.forEachIndexed { index, chunk ->
             // append chunk
@@ -80,6 +81,13 @@ abstract class Tile {
                 tooltip.add(Text.empty())
             }
         }
+    }
+
+    /**
+     * Adds tooltip chunks to this tile.
+     */
+    fun tooltip(vararg tooltips: TooltipChunk) {
+        tooltip(tooltips.toList())
     }
 
     /**

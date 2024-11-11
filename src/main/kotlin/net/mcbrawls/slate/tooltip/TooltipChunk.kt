@@ -29,8 +29,8 @@ class TooltipChunk(
          * Builds a tooltip chunk.
          */
         @JvmName("tooltipChunkText")
-        inline fun tooltipChunk(texts: List<Text>, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
-            return TooltipChunk(texts).apply(builder)
+        inline fun tooltipChunk(texts: Collection<Text>, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
+            return TooltipChunk(texts.toList()).apply(builder)
         }
 
         /**
@@ -44,8 +44,8 @@ class TooltipChunk(
          * Builds a tooltip chunk.
          */
         @JvmName("tooltipChunkString")
-        inline fun tooltipChunk(texts: List<String>, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
-            return TooltipChunk(texts.map(Text::literal)).apply(builder)
+        inline fun tooltipChunk(texts: Collection<String>, builder: TooltipChunk.() -> Unit = {}): TooltipChunk {
+            return tooltipChunk(texts.map(Text::literal), builder)
         }
 
         /**
