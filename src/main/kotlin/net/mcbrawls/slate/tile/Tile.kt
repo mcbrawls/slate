@@ -73,6 +73,23 @@ abstract class Tile {
     }
 
     /**
+     * Adds a click callback for the given click type, using left click in both screen contexts.
+     */
+    fun onGenericClick(callback: TileClickCallback) {
+        onClick(ClickType.LEFT) { slate, tile, context ->
+            if (context.withinScreen) {
+                callback.onClick(slate, tile, context)
+            }
+        }
+
+        onClick(ClickType.RIGHT) { slate, tile, context ->
+            if (!context.withinScreen) {
+                callback.onClick(slate, tile, context)
+            }
+        }
+    }
+
+    /**
      * Combines all callbacks for the given click type into one callable object.
      */
     fun collectClickCallbacks(clickType: ClickType): TileClickCallback {
