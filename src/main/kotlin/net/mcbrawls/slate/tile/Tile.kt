@@ -37,15 +37,31 @@ abstract class Tile {
     /**
      * Adds tooltips to this tile.
      */
-    fun tooltip(vararg tooltips: Text) {
+    @JvmName("tooltipText")
+    fun tooltip(tooltips: List<Text>) {
         tooltip.addAll(tooltips)
     }
 
     /**
      * Adds tooltips to this tile.
      */
-    fun tooltip(vararg tooltips: String) {
+    fun tooltip(vararg tooltips: Text) {
+        tooltip(tooltips.toList())
+    }
+
+    /**
+     * Adds tooltips to this tile.
+     */
+    @JvmName("tooltipString")
+    fun tooltip(tooltips: List<String>) {
         tooltip.addAll(tooltips.map(Text::literal))
+    }
+
+    /**
+     * Adds tooltips to this tile.
+     */
+    fun tooltip(vararg tooltips: String) {
+        tooltip(tooltips.toList())
     }
 
     /**
