@@ -71,14 +71,17 @@ abstract class Tile {
     fun tooltip(chunks: List<TooltipChunk>) {
         val lastIndex = chunks.lastIndex
         chunks.forEachIndexed { index, chunk ->
-            // append chunk
-            chunk.texts.forEach { text ->
-                tooltip.add(text.copy().fillStyle(chunk.style))
-            }
+            val texts = chunk.texts
+            if (texts.isNotEmpty()) {
+                // append chunk
+                texts.forEach { text ->
+                    tooltip.add(text.copy().fillStyle(chunk.style))
+                }
 
-            // append break
-            if (index != lastIndex) {
-                tooltip.add(Text.empty())
+                // append break
+                if (index != lastIndex) {
+                    tooltip.add(Text.empty())
+                }
             }
         }
     }
