@@ -24,6 +24,34 @@ class TooltipChunk(
         style = styler.invoke(style)
     }
 
+    /**
+     * Adds a text component to this chunk.
+     */
+    fun add(text: Text) {
+        texts.add(text)
+    }
+
+    /**
+     * Adds a text component to this chunk.
+     */
+    fun add(text: String) {
+        add(Text.literal(text))
+    }
+
+    internal fun modifyTooltip(tooltip: MutableList<Text>, index: Int, lastIndex: Int) {
+        if (texts.isNotEmpty()) {
+            // append chunk
+            texts.forEach { text ->
+                tooltip.add(text.copy().fillStyle(style))
+            }
+
+            // append break
+            if (index != lastIndex) {
+                tooltip.add(Text.empty())
+            }
+        }
+    }
+
     companion object {
         /**
          * Builds a tooltip chunk.
