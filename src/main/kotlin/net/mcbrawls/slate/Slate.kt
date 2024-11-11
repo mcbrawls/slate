@@ -197,8 +197,21 @@ open class Slate {
             // invoke callbacks
             callbackHandler.collectCallbacks<SlateCloseCallback>().invoke(this, player)
 
-            parent?.also { parent ->
-                parent.callbackHandler.collectCallbacks<ChildSlateCloseCallback>().invoke(this, player)
+            parent?.also { firstParent ->
+                val parents: List<Slate> = buildList {
+                    add(firstParent)
+
+                    // add nested parents
+                    var nestedParent = firstParent.parent
+                    while (nestedParent != null) {
+                        add(nestedParent)
+                        nestedParent = nestedParent.parent
+                    }
+                }
+
+                parents.forEach { parent ->
+                    parent.callbackHandler.collectCallbacks<ChildSlateCloseCallback>().invoke(this, player)
+                }
             }
         }
     }
