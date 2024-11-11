@@ -72,8 +72,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sl
         }
     }
 
-    @Inject(method = "playerTick", at = @At("TAIL"))
-    private void onTickEnd(CallbackInfo ci) {
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void onTickStart(CallbackInfo ci) {
         if (this.soonSlate != null) {
             if (!hasSlateOpen()) {
                 ServerPlayerEntity that = (ServerPlayerEntity) (Object) this;
