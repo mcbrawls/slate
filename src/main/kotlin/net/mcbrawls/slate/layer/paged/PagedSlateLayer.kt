@@ -1,5 +1,6 @@
-package net.mcbrawls.slate.layer
+package net.mcbrawls.slate.layer.paged
 
+import net.mcbrawls.slate.layer.SlateLayer
 import net.mcbrawls.slate.tile.StackTile
 import net.mcbrawls.slate.tile.Tile
 import net.mcbrawls.slate.tile.Tile.Companion.tile
@@ -24,13 +25,7 @@ abstract class PagedSlateLayer(
     var slotCount: Int = slotCount
         set(value) {
             field = value
-
-            // update page
-            val oldPage = currentPage
-            currentPage = oldPage
-            if (currentPage == oldPage) {
-                updateTileGrid()
-            }
+            currentPage = currentPage
         }
 
     /**
@@ -43,16 +38,7 @@ abstract class PagedSlateLayer(
      */
     var currentPage: Int = 0
         set(value) {
-            val page = wrapPage(value, maxPage)
-
-            if (field == page) {
-                return
-            }
-
-            field = page
-            updateTileGrid()
-
-            // callbackHandler.collectCallbacks<SlateLayerPageChangeCallback>().invoke()
+            field = wrapPage(value, maxPage)
         }
 
     init {
@@ -100,6 +86,7 @@ abstract class PagedSlateLayer(
                 onClick { slate, tile, context ->
                     callback?.onClick(slate, tile, context)
                     currentPage = modifier.invoke(currentPage)
+                    updateTileGrid()
                 }
             }
         }

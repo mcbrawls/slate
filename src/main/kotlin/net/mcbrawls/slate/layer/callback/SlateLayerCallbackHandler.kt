@@ -16,13 +16,6 @@ open class SlateLayerCallbackHandler {
     }
 
     /**
-     * Adds a callback invoked on the layer if a page changes.
-     */
-    fun onPageChange(callback: SlateLayerPageChangeCallback) {
-        callbacks.add(callback)
-    }
-
-    /**
      * Combines all callbacks for the given type into one callable object.
      */
     inline fun <reified T : SlateLayerCallback> collectCallbacks(): SlateLayerCallback {

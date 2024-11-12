@@ -5,8 +5,8 @@ import net.mcbrawls.slate.callback.SlateCloseCallback
 import net.mcbrawls.slate.callback.SlateOpenCallback
 import net.mcbrawls.slate.callback.SlateTickCallback
 import net.mcbrawls.slate.callback.handler.SlateCallbackHandler
-import net.mcbrawls.slate.layer.PagedSlateLayer
 import net.mcbrawls.slate.layer.SlateLayer
+import net.mcbrawls.slate.layer.paged.PagedSlateLayer
 import net.mcbrawls.slate.screen.SlateScreenHandler
 import net.mcbrawls.slate.screen.SlateScreenHandlerFactory
 import net.mcbrawls.slate.screen.slot.TileClickContext
