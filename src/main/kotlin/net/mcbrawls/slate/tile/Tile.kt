@@ -139,7 +139,16 @@ open class Tile {
             val tooltip = tooltip.map(Text::copy).toMutableList()
             val name = tooltip.removeFirst()
 
-            stack.set(DataComponentTypes.ITEM_NAME, name)
+            stack.set(
+                DataComponentTypes.CUSTOM_NAME,
+                name.styled { style ->
+                    if (style.italic == null) {
+                        style.withItalic(false)
+                    } else {
+                        style
+                    }
+                }
+            )
 
             if (tooltip.isNotEmpty()) {
                 tooltip.forEach { text ->
