@@ -7,6 +7,7 @@ import net.mcbrawls.slate.Slate.Companion.slate
 import net.mcbrawls.slate.SlatePlayer
 import net.mcbrawls.slate.screen.slot.ClickType
 import net.mcbrawls.slate.tile.StackTile
+import net.mcbrawls.slate.tile.SuspendedTile.Companion.tile
 import net.mcbrawls.slate.tile.Tile.Companion.tile
 import net.mcbrawls.slate.tile.TileGrid
 import net.mcbrawls.slate.tooltip.TooltipChunk.Companion.tooltipChunk
@@ -20,6 +21,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.random.Random
+import kotlin.concurrent.thread
 
 class SlateTest : ModInitializer {
     override fun onInitialize() {
@@ -60,6 +62,20 @@ class SlateTest : ModInitializer {
 
                     tiles[0, 0] = tile()
                     tiles[1, 0] = tile(Items.WHITE_WOOL)
+
+                    val suspendedTile = tile(tile()) { slate, player ->
+                        tile(ItemStack(Items.CHORUS_FRUIT)) {
+                            tooltip(Text.literal("${slate.key}, ${player.age}"))
+                        }
+                    }
+                    tiles[0, 1] = suspendedTile
+
+                    thread {
+                        for (i in 0 until 5) {
+                            Thread.sleep(3000L)
+                            suspendedTile.refreshTile()
+                        }
+                    }
 
                     // bound tests
                     tiles.setInventory(0, 0, tile(Items.ORANGE_WOOL))

@@ -21,7 +21,7 @@ enum class ClickType {
          * Parses a click type from the given data.
          */
         fun parse(button: Int, actionType: SlotActionType): ClickType {
-            return when(actionType) {
+            return when (actionType) {
                 SlotActionType.SWAP -> if (button == PlayerInventory.OFF_HAND_SLOT) OFFHAND else NUMBER_KEY
                 SlotActionType.CLONE -> MIDDLE
                 SlotActionType.THROW -> THROW

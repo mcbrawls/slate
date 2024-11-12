@@ -147,7 +147,7 @@ open class TileGrid(val width: Int, val height: Int) {
          * The width of this screen handler type.
          */
         val ScreenHandlerType<*>.width: Int get() {
-            return when(this) {
+            return when (this) {
                 ScreenHandlerType.CRAFTING -> 2
                 ScreenHandlerType.SMITHING -> 4
                 ScreenHandlerType.GENERIC_3X3 -> 3
@@ -172,7 +172,7 @@ open class TileGrid(val width: Int, val height: Int) {
          * The height of this screen handler type.
          */
         val ScreenHandlerType<*>.height: Int get() {
-            return when(this) {
+            return when (this) {
                 ScreenHandlerType.GENERIC_9X6 -> 6
                 ScreenHandlerType.CRAFTING -> 6
                 ScreenHandlerType.GENERIC_9X5 -> 5

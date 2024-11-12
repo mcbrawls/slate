@@ -188,6 +188,16 @@ open class Tile {
         }
     }
 
+    fun setMetadataFrom(tile: Tile) {
+        tooltip.clear()
+        tooltip.addAll(tile.tooltip)
+
+        immovable = tile.immovable
+
+        clickCallbacks.clear()
+        clickCallbacks.addAll(tile.clickCallbacks)
+    }
+
     override fun toString(): String {
         return "Tile"
     }
