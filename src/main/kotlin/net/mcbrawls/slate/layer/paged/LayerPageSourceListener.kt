@@ -25,6 +25,6 @@ class LayerPageSourceListener<T>(
         /**
          * Creates a page source listener from this collection.
          */
-        fun <T> MutableCollection<T>.layerPageListener(layer: PagedSlateLayer) = LayerPageSourceListener(this)
+        fun <T> MutableCollection<T>.layerPageListener() = LayerPageSourceListener(this)
     }
 }
