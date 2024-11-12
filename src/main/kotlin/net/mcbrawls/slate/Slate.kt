@@ -97,7 +97,7 @@ open class Slate {
         width: Int,
         height: Int,
         factory: SlateLayer.Factory = SlateLayer.Factory(::SlateLayer),
-        builder: SlateLayer.() -> Unit
+        builder: SlateLayer.() -> Unit,
     ) : SlateLayer {
         val layer = factory.create(width, height)
         layer.apply(builder)
@@ -115,7 +115,7 @@ open class Slate {
         height: Int,
         maxCount: Int,
         crossinline slotFactory: (Int) -> Tile?,
-        builder: SlateLayer.() -> Unit
+        builder: SlateLayer.() -> Unit = {},
     ) : PagedSlateLayer {
         val layer = object : PagedSlateLayer(maxCount, width, height) {
             override fun createTile(index: Int): Tile? {
