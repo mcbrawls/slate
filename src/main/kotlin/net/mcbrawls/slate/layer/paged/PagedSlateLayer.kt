@@ -84,20 +84,20 @@ abstract class PagedSlateLayer(
 
             callbacks {
                 onClick { slate, tile, context ->
-                    callback?.onClick(slate, tile, context)
                     currentPage = modifier.invoke(currentPage)
                     updateTileGrid()
+                    callback?.onClick(slate, tile, context)
                 }
             }
         }
     }
 
     fun createNextPageTile(stack: ItemStack, callback: TileClickCallback? = null): Tile {
-        return createPageChangeTile("Next Page", Int::unaryPlus, stack, callback)
+        return createPageChangeTile("Next Page", { it + 1 }, stack, callback)
     }
 
     fun createPreviousPageTile(stack: ItemStack, callback: TileClickCallback? = null): Tile {
-        return createPageChangeTile("Previous Page", Int::unaryMinus, stack, callback)
+        return createPageChangeTile("Previous Page", { it - 1 }, stack, callback)
     }
 
     companion object {
