@@ -32,6 +32,10 @@ open class Slate {
      * The title of the screen handler.
      */
     open var title: Text = Text.empty()
+        set(value) {
+            field = value
+            handledSlate?.sendTitle(value)
+        }
 
     /**
      * The base tile grid of this slate.
