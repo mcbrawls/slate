@@ -83,7 +83,7 @@ abstract class PagedSlateLayer(
             tooltip(title)
 
             callbacks {
-                onClick { slate, tile, context ->
+                onGenericClick { slate, tile, context ->
                     currentPage = modifier.invoke(currentPage)
                     updateTileGrid()
                     callback?.onClick(slate, tile, context)
