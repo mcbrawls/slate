@@ -39,7 +39,7 @@ class SuspendedTile(
             factoryState = FactoryState.SUSPENDED
 
             val timestamp = Util.getMeasuringTimeMs()
-            latestCallTimestamp.setValue(timestamp)
+            latestCallTimestamp.value = timestamp
 
             GlobalScope.async {
                 val newTile = tileFactory.create(slate, player)

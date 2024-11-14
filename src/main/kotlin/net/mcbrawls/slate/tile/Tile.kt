@@ -32,6 +32,11 @@ open class Tile {
      */
     var immovable: Boolean = true
 
+    /**
+     * The count displayed on the final stack.
+     */
+    var displayedCount: Int? = null
+
     val clickCallbacks: MutableList<Pair<ClickType, TileClickCallback>> = mutableListOf()
 
     /**
@@ -128,6 +133,7 @@ open class Tile {
 
         addTooltip(stack)
         addImmovable(stack)
+        addDisplayedCount(stack)
 
         return stack
     }
@@ -185,6 +191,12 @@ open class Tile {
         }
     }
 
+    internal fun addDisplayedCount(stack: ItemStack) {
+        displayedCount?.also { count ->
+            stack.count = count
+        }
+    }
+
     /**
      * Combines all callbacks for the given click type into one callable object.
      */
@@ -202,6 +214,7 @@ open class Tile {
         tooltip.addAll(tile.tooltip)
 
         immovable = tile.immovable
+        displayedCount = tile.displayedCount
 
         clickCallbacks.clear()
         clickCallbacks.addAll(tile.clickCallbacks)
