@@ -89,19 +89,36 @@ open class Slate {
     }
 
     /**
+     * Adds a layer to this slate at the given tile index.
+     */
+    fun addLayer(index: Int, layer: SlateLayer) {
+        layers.add(LayerWithIndex(index, layer))
+    }
+
+    /**
+     * Adds a layer to this slate at the given coordinates.
+     */
+    fun addLayer(x: Int, y: Int, layer: SlateLayer) {
+        addLayer(TileGrid.toIndex(x, y, tiles.width), layer)
+    }
+
+    /**
      * Adds a layer to this slate.
      * @return the created layer
      */
-    inline fun layer(
+    inline fun addLayer(
         index: Int,
         width: Int,
         height: Int,
         factory: SlateLayer.Factory = SlateLayer.Factory(::SlateLayer),
         builder: SlateLayer.() -> Unit,
     ) : SlateLayer {
-        val layer = factory.create(width, height)
-        layer.apply(builder)
-        layers.add(LayerWithIndex(index, layer))
+        val layer = factory
+            .create(width, height)
+            .apply(builder)
+
+        addLayer(index, layer)
+
         return layer
     }
 
@@ -109,7 +126,7 @@ open class Slate {
      * Adds a paged layer to this slate.
      * @return the created layer
      */
-    inline fun pagedLayer(
+    inline fun addPagedLayer(
         index: Int,
         width: Int,
         height: Int,
@@ -121,10 +138,9 @@ open class Slate {
             override fun createTile(index: Int): Tile? {
                 return slotFactory.invoke(this, index)
             }
-        }
+        }.apply(builder)
 
-        layer.apply(builder)
-        layers.add(LayerWithIndex(index, layer))
+        addLayer(index, layer)
 
         return layer
     }

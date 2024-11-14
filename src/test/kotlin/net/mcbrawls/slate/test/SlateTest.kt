@@ -37,7 +37,7 @@ class SlateTest : ModInitializer {
                 val slate = slate {
                     title = Text.literal("Slate Innit")
 
-                    layer(4, 3, 2) {
+                    addLayer(4, 3, 2) {
                         for (i in 0 until size) {
                             tiles[i] = tile(Items.STONE) {
                                 tooltip(Text.literal("Layer tile at $i"))
