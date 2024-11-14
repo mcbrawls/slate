@@ -29,6 +29,11 @@ open class Slate {
     open var key: String? = null
 
     /**
+     * Identifiable tags for this slate. Use how you wish.
+     */
+    val tags: MutableSet<String> = mutableSetOf()
+
+    /**
      * The title of the screen handler.
      */
     open var title: Text = Text.empty()
@@ -147,6 +152,13 @@ open class Slate {
         addLayer(index, layer)
 
         return layer
+    }
+
+    /**
+     * Adds tags to the tag list.
+     */
+    fun tags(vararg tags: String) {
+        this.tags.addAll(tags)
     }
 
     /**
@@ -377,6 +389,13 @@ open class Slate {
          */
         fun Slate?.hasKey(checkedKey: String): Boolean {
             return this != null && key == checkedKey
+        }
+
+        /**
+         * Checks if this slate (nullable) contains the checked tag.
+         */
+        fun Slate?.hasTag(checkedTag: String): Boolean {
+            return this != null && tags.contains(checkedTag)
         }
     }
 }
