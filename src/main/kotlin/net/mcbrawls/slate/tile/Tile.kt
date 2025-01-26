@@ -138,7 +138,7 @@ open class Tile {
         return stack
     }
 
-    internal fun addTooltip(stack: ItemStack) {
+    fun addTooltip(stack: ItemStack) {
         if (tooltip.isEmpty()) {
             stack.set(DataComponentTypes.HIDE_TOOLTIP, MinecraftUnit.INSTANCE)
         } else {
@@ -178,7 +178,7 @@ open class Tile {
         }
     }
 
-    internal fun addImmovable(stack: ItemStack) {
+    fun addImmovable(stack: ItemStack) {
         if (immovable) {
             val nbt = NbtCompound()
 
@@ -191,7 +191,7 @@ open class Tile {
         }
     }
 
-    internal fun addDisplayedCount(stack: ItemStack) {
+    fun addDisplayedCount(stack: ItemStack) {
         displayedCount?.also { count ->
             stack.count = count
         }
