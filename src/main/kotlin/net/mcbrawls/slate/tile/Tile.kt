@@ -1,6 +1,6 @@
 package net.mcbrawls.slate.tile
 
-import net.mcbrawls.slate.MinecraftUnit
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.mcbrawls.slate.Slate
 import net.mcbrawls.slate.screen.slot.ClickModifier
 import net.mcbrawls.slate.screen.slot.ClickType
@@ -8,6 +8,7 @@ import net.mcbrawls.slate.tooltip.TooltipChunk
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.LoreComponent
 import net.minecraft.component.type.NbtComponent
+import net.minecraft.component.type.TooltipDisplayComponent
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
@@ -140,7 +141,7 @@ open class Tile {
 
     fun addTooltip(stack: ItemStack) {
         if (tooltip.isEmpty()) {
-            stack.set(DataComponentTypes.HIDE_TOOLTIP, MinecraftUnit.INSTANCE)
+            stack.set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent(true, ReferenceLinkedOpenHashSet()))
         } else {
             val tooltip = tooltip.map(Text::copy).toMutableList()
             val name = tooltip.removeFirst()
