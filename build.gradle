@@ -6,7 +6,7 @@ plugins {
     id "maven-publish"
 }
 
-version = mod_version
+version = "$mod_version+$minecraft_version"
 group = maven_group
 
 base {
