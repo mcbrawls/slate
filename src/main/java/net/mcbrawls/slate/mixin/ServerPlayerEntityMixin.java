@@ -13,7 +13,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,8 +37,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sl
     @Unique
     private Slate soonSlate = null;
 
-    private ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
+    private ServerPlayerEntityMixin(World world, GameProfile gameProfile) {
+        super(world, gameProfile);
     }
 
     @Inject(method = "openHandledScreen", at = @At("HEAD"))

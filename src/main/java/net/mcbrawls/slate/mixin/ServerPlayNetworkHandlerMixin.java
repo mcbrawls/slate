@@ -47,7 +47,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         if (screenHandler instanceof SlateScreenHandler<?> handler) {
             Slate slate = handler.getSlate();
             if (!slate.getCanPlayerClose()) {
-                NetworkThreadUtils.forceMainThread(packet, that, this.player.getServerWorld());
+                NetworkThreadUtils.forceMainThread(packet, that, this.player.getWorld());
 
                 if (slate.getCanBeClosed()) {
                     // reopen for client
