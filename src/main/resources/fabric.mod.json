@@ -40,8 +40,8 @@
     },
 
     "depends": {
-        "minecraft": "~1.21.6-beta",
-        "fabric-api": "~0.126.0",
+        "minecraft": ">=1.21.6",
+        "fabric-api": ">=0.128.0",
         "fabric-language-kotlin": "*"
     }
 }
