@@ -15,8 +15,8 @@ base {
 
 repositories {
     maven {
-        name = "Andante"
-        url  = "https://maven.andante.dev/releases/"
+        name = "MC Brawls"
+        url  = "https://maven.mcbrawls.net/releases/"
     }
 }
 
@@ -121,14 +121,12 @@ publishing {
     }
 
     repositories {
-        // Andante's Maven
         def env = System.getenv()
-        def mavenUsername = env["MAVEN_USERNAME_ANDANTE"]
-        def mavenPassword = env["MAVEN_PASSWORD_ANDANTE"]
+        def mavenUsername = env["MAVEN_USERNAME"]
+        def mavenPassword = env["MAVEN_PASSWORD"]
         if (mavenUsername && mavenPassword) {
             maven {
-                name = "Andante"
-                url  = "https://maven.andante.dev/releases/"
+                url  = "https://maven.mcbrawls.net/releases/"
                 credentials.username = mavenUsername
                 credentials.password = mavenPassword
             }

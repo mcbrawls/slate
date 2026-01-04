@@ -9,14 +9,14 @@
 
 Public builds of Slate can be found on the [Modrinth](https://modrinth.com/mod/slates) page.
 
-To use Slate as a dependency you can find the artefact on our [public Maven repository](https://maven.andante.dev/#/releases/net/mcbrawls/slate).
+To use Slate as a dependency you can find the artefact on our [public Maven repository](https://maven.mcbrawls.net/#/releases/net/mcbrawls/slate).
 
 `build.gradle`
 ```gradle
 repositories {
     maven {
-        name = "Andante's Maven"
-        url  = "https://maven.andante.dev/releases/"
+        name = "MC Brawls Maven"
+        url  = "https://maven.mcbrawls.net/releases/"
     }
 }
 
