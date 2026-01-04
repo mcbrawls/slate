@@ -47,7 +47,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         if (screenHandler instanceof SlateScreenHandler<?> handler) {
             Slate slate = handler.getSlate();
             if (!slate.getCanPlayerClose()) {
-                NetworkThreadUtils.forceMainThread(packet, that, this.player.getWorld());
+                NetworkThreadUtils.forceMainThread(packet, that, this.player.getEntityWorld());
 
                 if (slate.getCanBeClosed()) {
                     // reopen for client
@@ -89,10 +89,10 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
             method = "onPlayerAction",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;dropSelectedItem(Z)Z"
+                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;dropSelectedItem(Z)V"
             )
     )
-    private boolean handleDrop(ServerPlayerEntity player, boolean entireStack, Operation<Boolean> original) {
+    private void handleDrop(ServerPlayerEntity player, boolean entireStack, Operation<Boolean> original) {
         if (this.player.currentScreenHandler instanceof SlateScreenHandler<?> handler) {
             Slate slate = handler.getSlate();
             if (slate instanceof InventorySlate inventorySlate) {
@@ -102,10 +102,10 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
                 SlotActionType actionType = SlotActionType.THROW;
                 TileClickContext context = new TileClickContext(tile, button, actionType, ClickType.Companion.parse(button, actionType), listeners.getClickModifiers(player), player, false);
                 slate.onSlotClicked(context);
-                return false;
+                return;
             }
         }
 
-        return original.call(player, entireStack);
+        original.call(player, entireStack);
     }
 }
