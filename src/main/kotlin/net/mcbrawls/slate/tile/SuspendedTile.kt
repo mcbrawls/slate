@@ -46,7 +46,7 @@ class SuspendedTile(
 
                 // only update for latest function call
                 synchronized(latestCallTimestamp) {
-                    if (timestamp == latestCallTimestamp.value) {
+                    if (timestamp == latestCallTimestamp.get()) {
                         tile = newTile
                         factoryState = FactoryState.FINISHED
                     }
